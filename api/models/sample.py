@@ -33,7 +33,7 @@ class SlugMixin:
 class Sample(Base, SlugMixin):
     __tablename__ = "sampletbl"
 
-    location = Column(Geometry('POINT', srid=4326), nullable=True)
+    location = Column(Geometry("POINT", srid=4326), nullable=True)
     project_slug = Column(String(80), ForeignKey("projecttbl.slug"))
     material_slug = Column(String(80), ForeignKey("materialtbl.slug"))
 
@@ -57,5 +57,6 @@ class Property(Base):
     slug = Column(String(80), unique=True, nullable=False)
     value = Column(Float, nullable=False)
     error = Column(Float, nullable=True)
+
 
 # ============= EOF =============================================

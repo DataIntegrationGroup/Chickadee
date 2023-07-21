@@ -24,4 +24,6 @@ class Project(Base):
     name = Column(String(80), nullable=False)
 
     samples = relationship("Sample", backref="project", lazy=True)
+
+
 # ============= EOF =============================================

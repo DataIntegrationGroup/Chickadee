@@ -23,6 +23,7 @@ Base.metadata.create_all(bind=engine)
 
 
 from routes import sample
+
 app.include_router(sample.router)
 
 if __name__ == "__main__":

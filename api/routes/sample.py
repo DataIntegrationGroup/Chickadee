@@ -23,11 +23,12 @@ from schemas.sample import Sample
 router = APIRouter(prefix="/sample", tags=["sample"])
 
 
-@router.get('/', response_model=list[Sample])
+@router.get("/", response_model=list[Sample])
 async def root(db: Session = Depends(get_db)):
     q = db.query(sample.Sample)
     samples = q.all()
 
     return samples
+
 
 # ============= EOF =============================================
