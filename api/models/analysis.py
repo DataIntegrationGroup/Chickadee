@@ -33,4 +33,6 @@ class AnalysisProperty(Base, SlugMixin):
     value_str = Column(String(80), nullable=True)
     value_bool = Column(Boolean, nullable=True)
     value_int = Column(Integer, nullable=True)
+
+
 # ============= EOF =============================================

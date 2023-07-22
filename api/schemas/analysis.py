@@ -18,4 +18,6 @@ from . import NamedModel, ORMBaseModel
 
 class Analysis(ORMBaseModel):
     pass
+
+
 # ============= EOF =============================================

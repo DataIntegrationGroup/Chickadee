@@ -26,12 +26,14 @@ from schemas.sample import Sample, Material
 router = APIRouter(prefix="/sample", tags=["sample"])
 
 
-@router.get('', response_model=List[Sample])
+@router.get("", response_model=List[Sample])
 async def root(name: str = None, db: Session = Depends(get_db)):
     return root_query(name, db, sample.Sample)
 
 
-@router.get('/material', response_model=List[Material])
+@router.get("/material", response_model=List[Material])
 async def material(name: str = None, db: Session = Depends(get_db)):
     return root_query(name, db, sample.Material)
+
+
 # ============= EOF =============================================

@@ -14,6 +14,7 @@
 # limitations under the License.
 # ===============================================================================
 
+
 def root_query(name: str, db, table):
     q = db.query(table)
     if name:
@@ -24,19 +25,21 @@ def root_query(name: str, db, table):
 def property_query(q, query, table):
     f = None
     q = q.join(table)
-    query, comp, value = query.split(' ')
-    if comp == '==':
+    query, comp, value = query.split(" ")
+    if comp == "==":
         f = table.value == value
-    elif comp == '>=':
+    elif comp == ">=":
         f = table.value >= value
-    elif comp == '<=':
+    elif comp == "<=":
         f = table.value <= value
-    elif comp == '>':
+    elif comp == ">":
         f = table.value > value
-    elif comp == '<':
+    elif comp == "<":
         f = table.value < value
 
     if f:
         q = q.filter(f)
     return q
+
+
 # ============= EOF =============================================

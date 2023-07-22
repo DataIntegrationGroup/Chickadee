@@ -27,10 +27,8 @@ from schemas.analysis import Analysis
 router = APIRouter(prefix="/analysis", tags=["analysis"])
 
 
-@router.get('', response_model=List[Analysis])
-async def root(name: str = None,
-               query: str = None,
-               db: Session = Depends(get_db)):
+@router.get("", response_model=List[Analysis])
+async def root(name: str = None, query: str = None, db: Session = Depends(get_db)):
     q = db.query(analysis.Analysis)
     if query:
         q = property_query(q, query, analysis.Analysis)
@@ -38,5 +36,6 @@ async def root(name: str = None,
         q = q.filter(analysis.Analysis.name == name)
 
     return q.all()
+
 
 # ============= EOF =============================================

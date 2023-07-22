@@ -26,7 +26,9 @@ from schemas.project import Project
 router = APIRouter(prefix="/project", tags=["project"])
 
 
-@router.get('', response_model=List[Project])
+@router.get("", response_model=List[Project])
 async def root(name: str = None, db: Session = Depends(get_db)):
     return root_query(name, db, project.Project)
+
+
 # ============= EOF =============================================

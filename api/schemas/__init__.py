@@ -25,4 +25,6 @@ class ORMBaseModel(BaseModel):
 
 class NamedModel(ORMBaseModel):
     name: str
+
+
 # ============= EOF =============================================
