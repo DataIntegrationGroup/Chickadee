@@ -1,5 +1,5 @@
 # ===============================================================================
-# Copyright 2023 Jake Ross
+# Copyright 2023 ross
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,25 +13,30 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ===============================================================================
+
 from typing import List
 
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
-from models import sample
 from dependencies import get_db
-from routes import root_query
-from schemas.sample import Sample, Material
+from models import analysis
+from routes import root_query, property_query
+from schemas.analysis import Analysis
 
-router = APIRouter(prefix="/sample", tags=["sample"])
-
-
-@router.get('', response_model=List[Sample])
-async def root(name: str = None, db: Session = Depends(get_db)):
-    return root_query(name, db, sample.Sample)
+router = APIRouter(prefix="/analysis", tags=["analysis"])
 
 
-@router.get('/material', response_model=List[Material])
-async def material(name: str = None, db: Session = Depends(get_db)):
-    return root_query(name, db, sample.Material)
+@router.get('', response_model=List[Analysis])
+async def root(name: str = None,
+               query: str = None,
+               db: Session = Depends(get_db)):
+    q = db.query(analysis.Analysis)
+    if query:
+        q = property_query(q, query, analysis.Analysis)
+    elif name:
+        q = q.filter(analysis.Analysis.name == name)
+
+    return q.all()
+
 # ============= EOF =============================================

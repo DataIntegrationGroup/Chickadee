@@ -1,5 +1,5 @@
 # ===============================================================================
-# Copyright 2023 Jake Ross
+# Copyright 2023 ross
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,25 +13,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ===============================================================================
-from typing import List
-
-from fastapi import APIRouter, Depends
-from sqlalchemy.orm import Session
-
-from models import sample
-from dependencies import get_db
-from routes import root_query
-from schemas.sample import Sample, Material
-
-router = APIRouter(prefix="/sample", tags=["sample"])
+from sqlalchemy import Column, String, ForeignKey, DateTime, Float, Boolean, Integer
+from models import Base
+from models.sample import SlugMixin
 
 
-@router.get('', response_model=List[Sample])
-async def root(name: str = None, db: Session = Depends(get_db)):
-    return root_query(name, db, sample.Sample)
+class Analysis(Base, SlugMixin):
+    __tablename__ = "analysistbl"
+
+    sample_slug = Column(String(80), ForeignKey("sampletbl.slug"), nullable=False)
+    timestamp = Column(DateTime, nullable=False)
+    lab_id = Column(String(80), nullable=False)
 
 
-@router.get('/material', response_model=List[Material])
-async def material(name: str = None, db: Session = Depends(get_db)):
-    return root_query(name, db, sample.Material)
+class AnalysisProperty(Base, SlugMixin):
+    __tablename__ = "analysispropertytbl"
+    analysis_id = Column(String(80), ForeignKey("analysistbl.slug"), nullable=False)
+    value = Column(Float, nullable=True)
+    value_str = Column(String(80), nullable=True)
+    value_bool = Column(Boolean, nullable=True)
+    value_int = Column(Integer, nullable=True)
 # ============= EOF =============================================

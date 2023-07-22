@@ -13,22 +13,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ===============================================================================
-from app import app
-
-from database import engine
-from models import sample, project, analysis, Base
-
-Base.metadata.drop_all(bind=engine)
-Base.metadata.create_all(bind=engine)
+from . import NamedModel, ORMBaseModel
 
 
-from routes import sample, project, analysis
-app.include_router(sample.router)
-app.include_router(project.router)
-app.include_router(analysis.router)
-
-if __name__ == "__main__":
-    import uvicorn
-
-    uvicorn.run(app, port=8008)
+class Analysis(ORMBaseModel):
+    pass
 # ============= EOF =============================================
