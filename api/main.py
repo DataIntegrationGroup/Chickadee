@@ -16,15 +16,16 @@
 from app import app
 
 from database import engine
-from models import sample, project, Base
+from models import sample, project, analysis, Base
 
 Base.metadata.drop_all(bind=engine)
 Base.metadata.create_all(bind=engine)
 
 
-from routes import sample
-
+from routes import sample, project, analysis
 app.include_router(sample.router)
+app.include_router(project.router)
+app.include_router(analysis.router)
 
 if __name__ == "__main__":
     import uvicorn

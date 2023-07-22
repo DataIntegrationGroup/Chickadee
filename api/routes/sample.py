@@ -13,22 +13,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ===============================================================================
+from typing import List
+
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from models import sample
 from dependencies import get_db
-from schemas.sample import Sample
+from routes import root_query
+from schemas.sample import Sample, Material
 
 router = APIRouter(prefix="/sample", tags=["sample"])
 
 
-@router.get("/", response_model=list[Sample])
-async def root(db: Session = Depends(get_db)):
-    q = db.query(sample.Sample)
-    samples = q.all()
-
-    return samples
+@router.get('', response_model=List[Sample])
+async def root(name: str = None, db: Session = Depends(get_db)):
+    return root_query(name, db, sample.Sample)
 
 
+@router.get('/material', response_model=List[Material])
+async def material(name: str = None, db: Session = Depends(get_db)):
+    return root_query(name, db, sample.Material)
 # ============= EOF =============================================

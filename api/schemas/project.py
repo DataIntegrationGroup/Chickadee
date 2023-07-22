@@ -13,13 +13,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ===============================================================================
-from . import NamedModel
+from . import ORMBaseModel, NamedModel
 
 
-class Sample(NamedModel):
-    pass
-
-
-class Material(NamedModel):
+class Project(NamedModel):
     pass
 # ============= EOF =============================================

@@ -1,5 +1,5 @@
 # ===============================================================================
-# Copyright 2023 Jake Ross
+# Copyright 2023 ross
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,13 +13,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ===============================================================================
-from . import NamedModel
+from typing import List
+
+from fastapi import APIRouter, Depends
+from sqlalchemy.orm import Session
+
+from dependencies import get_db
+from models import project
+from routes import root_query
+from schemas.project import Project
+
+router = APIRouter(prefix="/project", tags=["project"])
 
 
-class Sample(NamedModel):
-    pass
-
-
-class Material(NamedModel):
-    pass
+@router.get('', response_model=List[Project])
+async def root(name: str = None, db: Session = Depends(get_db)):
+    return root_query(name, db, project.Project)
 # ============= EOF =============================================
