@@ -1,5 +1,5 @@
 # ===============================================================================
-# Copyright 2023 ross
+# Copyright 2023 Jake Ross
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ===============================================================================
-import datetime
 from typing import List
 
 from fastapi import APIRouter, Depends
@@ -21,46 +20,31 @@ from sqlalchemy.orm import Session
 from starlette.responses import Response
 from starlette.status import HTTP_200_OK, HTTP_422_UNPROCESSABLE_ENTITY
 
+from models.sample import Sample as MSample, Material as MMaterial
 from dependencies import get_db
-from models.project import Project as MProject
-from routes import root_query, Query
-from schemas.project import Project
+from routes import Query
+from schemas.sample import Sample, Material, CreateSample
 
-router = APIRouter(prefix="/project", tags=["project"])
+router = APIRouter(prefix="/material", tags=["Material"])
 
 
-@router.get("", response_model=List[Project])
-async def root(
-    name: str = None,
-    embargoed: bool = None,
-    db: Session = Depends(get_db),
-):
-    q = Query(db, MProject)
+@router.get("", response_model=List[Material])
+async def root(name: str = None, db: Session = Depends(get_db)):
+    q = Query(db, MMaterial)
     q.add_name_query(name)
-    q.add_embaro_query(embargoed)
-
-    # table = project.Project
-    #
-    # q = db.query(table)
-    # if name:
-    #     q = q.filter(table.name == name)
-
     return q.all()
 
-    # return root_query(name, db, project.Project)
 
-
-@router.post("", response_model=Project)
-async def create(project: Project, db: Session = Depends(get_db)):
-    q = Query(db, MProject)
-    q.add_name_query(project.name)
+@router.post("", response_model=Material)
+async def create_material(material: Material, db: Session = Depends(get_db)):
+    q = Query(db, MMaterial)
+    q.add_name_query(material.name)
     if q.all():
         return Response(status_code=HTTP_422_UNPROCESSABLE_ENTITY)
-        # raise Exception(f"Project {project.name} already exists")
 
-    params = project.model_dump()
-    params["slug"] = params["name"].replace(" ", "_")
+    params = material.model_dump()
+    params['slug'] = params['name'].replace(' ', '_')
 
-    return q.add(MProject(**params))
+    return q.add(MMaterial(**params))
 
 # ============= EOF =============================================

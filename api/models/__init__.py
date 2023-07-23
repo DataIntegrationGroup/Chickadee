@@ -15,7 +15,7 @@
 # ===============================================================================
 from datetime import datetime
 
-from sqlalchemy import Column, String, DateTime, func, Date
+from sqlalchemy import Column, String, DateTime, func, Date, Integer, Float
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import declared_attr
 
@@ -28,8 +28,26 @@ class SlugMixin:
         return Column(String(80), unique=True, nullable=False, primary_key=True)
 
     @declared_attr
-    def name(self):
+    def name(cls):
         return Column(String(80), nullable=False)
+
+
+class PropertyMixin:
+    @declared_attr
+    def id(cls):
+        return Column(Integer, primary_key=True, autoincrement=True)
+
+    @declared_attr
+    def slug(cls):
+        return Column(String(80), unique=False, nullable=False)
+
+    @declared_attr
+    def value(cls):
+        return Column(Float, nullable=False)
+
+    @declared_attr
+    def error(cls):
+        return Column(Float, nullable=True)
 
 
 class EmbargoMixin:

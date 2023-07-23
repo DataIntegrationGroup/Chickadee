@@ -20,8 +20,12 @@ class Sample(NamedModel):
     pass
 
 
+class CreateSample(NamedModel):
+    project: str
+    material: str
+
+
 class Material(NamedModel):
     pass
-
 
 # ============= EOF =============================================

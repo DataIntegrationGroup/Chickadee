@@ -17,7 +17,7 @@
 from sqlalchemy import Column, String, Float, Integer, ForeignKey
 from geoalchemy2 import Geometry
 from sqlalchemy.orm import relationship, declared_attr
-from . import Base, SlugMixin, EmbargoMixin
+from . import Base, SlugMixin, EmbargoMixin, PropertyMixin
 
 
 class Sample(Base, SlugMixin, EmbargoMixin):
@@ -36,21 +36,16 @@ class Material(Base, SlugMixin):
     properties = relationship("MaterialProperty", backref="material", lazy=True)
 
 
-class MaterialProperty(Base):
+class MaterialProperty(Base, PropertyMixin):
     __tablename__ = "materialpropertytbl"
-    id = Column(Integer, primary_key=True, autoincrement=True)
+
     material_slug = Column(String(80), ForeignKey("materialtbl.slug"))
-    slug = Column(String(80), unique=True, nullable=False)
-    value = Column(Float, nullable=False)
 
 
-class SampleProperty(Base):
+class SampleProperty(Base, PropertyMixin):
     __tablename__ = "samplepropertytbl"
     id = Column(Integer, primary_key=True, autoincrement=True)
     sample_slug = Column(String(80), ForeignKey("sampletbl.slug"))
-    slug = Column(String(80), unique=True, nullable=False)
-    value = Column(Float, nullable=False)
-    error = Column(Float, nullable=True)
 
 
 # ============= EOF =============================================

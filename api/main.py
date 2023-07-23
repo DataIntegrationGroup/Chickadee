@@ -22,11 +22,12 @@ Base.metadata.drop_all(bind=engine)
 Base.metadata.create_all(bind=engine)
 
 
-from routes import sample, project, analysis
+from routes import sample, project, analysis, material
 
 app.include_router(sample.router)
 app.include_router(project.router)
 app.include_router(analysis.router)
+app.include_router(material.router)
 
 if __name__ == "__main__":
     import uvicorn

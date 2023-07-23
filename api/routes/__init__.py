@@ -22,6 +22,13 @@ class Query:
         self.table = table
         self.q = db.query(table)
 
+    def add(self, item):
+        db = self.db
+        db.add(item)
+        db.commit()
+        # db.refresh_item(item)
+        return item
+
     def all(self):
         return self.q.all()
 
@@ -36,6 +43,12 @@ class Query:
         q = self.q
         if name:
             q = q.filter(self.table.name == name)
+        self.q = q
+
+    def add_slug_query(self, slug):
+        q = self.q
+        if slug:
+            q = q.filter(self.table.slug == slug)
         self.q = q
 
     def add_property_query(self, query):
@@ -66,7 +79,6 @@ def root_query(name: str, db, table):
     if name:
         q = q.filter(table.name == name)
     return q.all()
-
 
 #
 # def property_query(q, query, table):

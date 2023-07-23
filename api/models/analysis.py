@@ -14,7 +14,9 @@
 # limitations under the License.
 # ===============================================================================
 from sqlalchemy import Column, String, ForeignKey, DateTime, Float, Boolean, Integer
-from models import Base
+from sqlalchemy.orm import relationship
+
+from models import Base, PropertyMixin
 from models import SlugMixin
 
 
@@ -23,13 +25,16 @@ class Analysis(Base, SlugMixin):
 
     sample_slug = Column(String(80), ForeignKey("sampletbl.slug"), nullable=False)
     timestamp = Column(DateTime, nullable=False)
-    lab_id = Column(String(80), nullable=False)
+
+    properties = relationship("AnalysisProperty", backref="analysis", lazy=True)
 
 
-class AnalysisProperty(Base, SlugMixin):
+class AnalysisProperty(Base, PropertyMixin):
     __tablename__ = "analysispropertytbl"
-    analysis_id = Column(String(80), ForeignKey("analysistbl.slug"), nullable=False)
-    value = Column(Float, nullable=True)
+
+    units = Column(String(80), nullable=True)
+    analysis_slug = Column(String(80), ForeignKey("analysistbl.slug"), nullable=False)
+
     value_str = Column(String(80), nullable=True)
     value_bool = Column(Boolean, nullable=True)
     value_int = Column(Integer, nullable=True)

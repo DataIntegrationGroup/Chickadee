@@ -20,4 +20,13 @@ class Analysis(ORMBaseModel):
     pass
 
 
+class CreateAnalysis(ORMBaseModel):
+    analysis_type: str
+    name: str
+    slug: str
+    sample_slug: str
+    timestamp: str
+    is_bad: bool = False
+    properties: dict = None
+
 # ============= EOF =============================================
