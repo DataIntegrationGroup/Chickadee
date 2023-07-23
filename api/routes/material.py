@@ -43,8 +43,9 @@ async def create_material(material: Material, db: Session = Depends(get_db)):
         return Response(status_code=HTTP_422_UNPROCESSABLE_ENTITY)
 
     params = material.model_dump()
-    params['slug'] = params['name'].replace(' ', '_')
+    params["slug"] = params["name"].replace(" ", "_")
 
     return q.add(MMaterial(**params))
+
 
 # ============= EOF =============================================

@@ -29,4 +29,5 @@ class CreateAnalysis(ORMBaseModel):
     is_bad: bool = False
     properties: dict = None
 
+
 # ============= EOF =============================================

@@ -50,10 +50,10 @@ async def create(analysis: CreateAnalysis, db: Session = Depends(get_db)):
     params = analysis.model_dump()
     analysis_type = params.pop("analysis_type")
     is_bad = params.pop("is_bad")
-    properties = params.pop('properties')
+    properties = params.pop("properties")
 
-    params['sample_slug'] = params['sample_slug'].replace(' ', '_')
-    params['slug'] = params['name'].replace(' ', '_')
+    params["sample_slug"] = params["sample_slug"].replace(" ", "_")
+    params["slug"] = params["name"].replace(" ", "_")
     # sample = params.pop('sample')
     # params["slug"] = params["name"].replace(" ", "_")
     print(params)
@@ -63,23 +63,24 @@ async def create(analysis: CreateAnalysis, db: Session = Depends(get_db)):
         prop = AnalysisProperty()
         prop.analysis_slug = an.slug
 
-        prop.slug = k.replace(' ', '_')
+        prop.slug = k.replace(" ", "_")
         prop.name = k
 
-        vv = v['value']
+        vv = v["value"]
         if isinstance(vv, str):
             prop.value_str = vv
         elif isinstance(vv, float):
             prop.value = vv
-            prop.error = v['error']
+            prop.error = v["error"]
         elif isinstance(vv, bool):
             prop.value_bool = vv
         elif isinstance(vv, int):
             prop.value_int = vv
 
-        prop.units = v['units']
+        prop.units = v["units"]
         q.add(prop)
 
     return an
+
 
 # ============= EOF =============================================

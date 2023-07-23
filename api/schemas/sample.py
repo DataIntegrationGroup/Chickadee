@@ -28,4 +28,5 @@ class CreateSample(NamedModel):
 class Material(NamedModel):
     pass
 
+
 # ============= EOF =============================================

@@ -63,4 +63,5 @@ async def create(project: Project, db: Session = Depends(get_db)):
 
     return q.add(MProject(**params))
 
+
 # ============= EOF =============================================

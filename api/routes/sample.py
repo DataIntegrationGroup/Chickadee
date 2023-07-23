@@ -43,13 +43,14 @@ async def create_sample(sample: CreateSample, db: Session = Depends(get_db)):
         return Response(status_code=HTTP_422_UNPROCESSABLE_ENTITY)
 
     params = sample.model_dump()
-    params['slug'] = params['name'].replace(' ', '_')
-    project = params.pop('project')
-    params['project_slug'] = project.replace(' ', '_')
-    material = params.pop('material')
-    params['material_slug'] = material.replace(' ', '_')
+    params["slug"] = params["name"].replace(" ", "_")
+    project = params.pop("project")
+    params["project_slug"] = project.replace(" ", "_")
+    material = params.pop("material")
+    params["material_slug"] = material.replace(" ", "_")
     dbsample = MSample(**params)
     dbsample = q.add(dbsample)
     return dbsample
+
 
 # ============= EOF =============================================
