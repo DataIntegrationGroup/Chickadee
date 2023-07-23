@@ -27,14 +27,13 @@ from schemas.analysis import Analysis
 router = APIRouter(prefix="/analysis", tags=["analysis"])
 
 
-@router.get('', response_model=List[Analysis])
-async def root(name: str = None,
-               query: str = None,
-               db: Session = Depends(get_db)):
+@router.get("", response_model=List[Analysis])
+async def root(name: str = None, query: str = None, db: Session = Depends(get_db)):
     q = Query(db, analysis.Analysis)
     q.add_name_query(name)
     q.add_property_query(query)
 
     return q.all()
+
 
 # ============= EOF =============================================

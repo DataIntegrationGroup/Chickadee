@@ -27,12 +27,12 @@ from schemas.project import Project
 router = APIRouter(prefix="/project", tags=["project"])
 
 
-@router.get('', response_model=List[Project])
-async def root(name: str = None,
-               embargoed: bool = None,
-               db: Session = Depends(get_db),
-               ):
-
+@router.get("", response_model=List[Project])
+async def root(
+    name: str = None,
+    embargoed: bool = None,
+    db: Session = Depends(get_db),
+):
     q = Query(db, project.Project)
     q.add_name_query(name)
     q.add_embaro_query(embargoed)
@@ -43,8 +43,9 @@ async def root(name: str = None,
     # if name:
     #     q = q.filter(table.name == name)
 
-
     return q.all()
 
     # return root_query(name, db, project.Project)
+
+
 # ============= EOF =============================================

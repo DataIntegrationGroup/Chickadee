@@ -17,7 +17,6 @@ from datetime import datetime
 
 
 class Query:
-
     def __init__(self, db, table):
         self.db = db
         self.table = table
@@ -44,16 +43,16 @@ class Query:
         table = self.table
         f = None
         q = q.join(table)
-        query, comp, value = query.split(' ')
-        if comp == '==':
+        query, comp, value = query.split(" ")
+        if comp == "==":
             f = table.value == value
-        elif comp == '>=':
+        elif comp == ">=":
             f = table.value >= value
-        elif comp == '<=':
+        elif comp == "<=":
             f = table.value <= value
-        elif comp == '>':
+        elif comp == ">":
             f = table.value > value
-        elif comp == '<':
+        elif comp == "<":
             f = table.value < value
 
         if f:
@@ -67,6 +66,7 @@ def root_query(name: str, db, table):
     if name:
         q = q.filter(table.name == name)
     return q.all()
+
 
 #
 # def property_query(q, query, table):

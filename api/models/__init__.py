@@ -48,4 +48,6 @@ class EmbargoMixin:
     @declared_attr
     def doi(self):
         return Column(String(80), nullable=True)
+
+
 # ============= EOF =============================================
