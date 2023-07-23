@@ -21,21 +21,20 @@ from sqlalchemy.orm import Session
 
 from dependencies import get_db
 from models import analysis
-from routes import root_query, property_query
+from routes import Query
 from schemas.analysis import Analysis
 
 router = APIRouter(prefix="/analysis", tags=["analysis"])
 
 
-@router.get("", response_model=List[Analysis])
-async def root(name: str = None, query: str = None, db: Session = Depends(get_db)):
-    q = db.query(analysis.Analysis)
-    if query:
-        q = property_query(q, query, analysis.Analysis)
-    elif name:
-        q = q.filter(analysis.Analysis.name == name)
+@router.get('', response_model=List[Analysis])
+async def root(name: str = None,
+               query: str = None,
+               db: Session = Depends(get_db)):
+    q = Query(db, analysis.Analysis)
+    q.add_name_query(name)
+    q.add_property_query(query)
 
     return q.all()
-
 
 # ============= EOF =============================================

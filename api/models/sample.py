@@ -17,41 +17,35 @@
 from sqlalchemy import Column, String, Float, Integer, ForeignKey
 from geoalchemy2 import Geometry
 from sqlalchemy.orm import relationship, declared_attr
-from . import Base
+from . import Base, SlugMixin, EmbargoMixin
 
 
-class SlugMixin:
-    @declared_attr
-    def slug(cls):
-        return Column(String(80), unique=True, nullable=False, primary_key=True)
-
-    @declared_attr
-    def name(self):
-        return Column(String(80), nullable=False)
-
-
-class Sample(Base, SlugMixin):
+class Sample(Base, SlugMixin, EmbargoMixin):
     __tablename__ = "sampletbl"
 
     location = Column(Geometry("POINT", srid=4326), nullable=True)
     project_slug = Column(String(80), ForeignKey("projecttbl.slug"))
     material_slug = Column(String(80), ForeignKey("materialtbl.slug"))
 
-    properties = relationship("Property", backref="sample", lazy=True)
+    properties = relationship("SampleProperty", backref="sample", lazy=True)
 
 
 class Material(Base, SlugMixin):
     __tablename__ = "materialtbl"
+
+    properties = relationship("MaterialProperty", backref="material", lazy=True)
 
 
 class MaterialProperty(Base):
     __tablename__ = "materialpropertytbl"
     id = Column(Integer, primary_key=True, autoincrement=True)
     material_slug = Column(String(80), ForeignKey("materialtbl.slug"))
+    slug = Column(String(80), unique=True, nullable=False)
+    value = Column(Float, nullable=False)
 
 
-class Property(Base):
-    __tablename__ = "propertytbl"
+class SampleProperty(Base):
+    __tablename__ = "samplepropertytbl"
     id = Column(Integer, primary_key=True, autoincrement=True)
     sample_slug = Column(String(80), ForeignKey("sampletbl.slug"))
     slug = Column(String(80), unique=True, nullable=False)

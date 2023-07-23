@@ -15,7 +15,7 @@
 # ===============================================================================
 from sqlalchemy import Column, String, ForeignKey, DateTime, Float, Boolean, Integer
 from models import Base
-from models.sample import SlugMixin
+from models import SlugMixin
 
 
 class Analysis(Base, SlugMixin):

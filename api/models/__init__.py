@@ -13,7 +13,39 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ===============================================================================
+from datetime import datetime
+
+from sqlalchemy import Column, String, DateTime, func, Date
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import declared_attr
 
 Base = declarative_base()
+
+
+class SlugMixin:
+    @declared_attr
+    def slug(cls):
+        return Column(String(80), unique=True, nullable=False, primary_key=True)
+
+    @declared_attr
+    def name(self):
+        return Column(String(80), nullable=False)
+
+
+class EmbargoMixin:
+    @property
+    def is_embargoed(self):
+        return self.embargo_date > datetime.now().date()
+
+    @declared_attr
+    def embargo_date(self):
+        return Column(Date, nullable=False, server_default=func.now())
+
+    @declared_attr
+    def publication(self):
+        return Column(String(80), nullable=True)
+
+    @declared_attr
+    def doi(self):
+        return Column(String(80), nullable=True)
 # ============= EOF =============================================

@@ -20,20 +20,23 @@ from sqlalchemy.orm import Session
 
 from models import sample
 from dependencies import get_db
-from routes import root_query
+from routes import  Query
 from schemas.sample import Sample, Material
 
 router = APIRouter(prefix="/sample", tags=["sample"])
 
 
-@router.get("", response_model=List[Sample])
+@router.get('', response_model=List[Sample])
 async def root(name: str = None, db: Session = Depends(get_db)):
-    return root_query(name, db, sample.Sample)
+    q = Query(db, sample.Sample)
+    q.add_name_query(name)
+    return q.all()
 
 
-@router.get("/material", response_model=List[Material])
+@router.get('/material', response_model=List[Material])
 async def material(name: str = None, db: Session = Depends(get_db)):
-    return root_query(name, db, sample.Material)
-
+    q = Query(db, sample.Material)
+    q.add_name_query(name)
+    return q.all()
 
 # ============= EOF =============================================

@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ===============================================================================
+import datetime
 from typing import List
 
 from fastapi import APIRouter, Depends
@@ -20,15 +21,30 @@ from sqlalchemy.orm import Session
 
 from dependencies import get_db
 from models import project
-from routes import root_query
+from routes import root_query, Query
 from schemas.project import Project
 
 router = APIRouter(prefix="/project", tags=["project"])
 
 
-@router.get("", response_model=List[Project])
-async def root(name: str = None, db: Session = Depends(get_db)):
-    return root_query(name, db, project.Project)
+@router.get('', response_model=List[Project])
+async def root(name: str = None,
+               embargoed: bool = None,
+               db: Session = Depends(get_db),
+               ):
+
+    q = Query(db, project.Project)
+    q.add_name_query(name)
+    q.add_embaro_query(embargoed)
+
+    # table = project.Project
+    #
+    # q = db.query(table)
+    # if name:
+    #     q = q.filter(table.name == name)
 
 
+    return q.all()
+
+    # return root_query(name, db, project.Project)
 # ============= EOF =============================================
