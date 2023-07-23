@@ -18,8 +18,8 @@ from app import app
 from database import engine
 from models import sample, project, analysis, Base
 
-Base.metadata.drop_all(bind=engine)
-Base.metadata.create_all(bind=engine)
+# Base.metadata.drop_all(bind=engine)
+# Base.metadata.create_all(bind=engine)
 
 
 from routes import sample, project, analysis, material

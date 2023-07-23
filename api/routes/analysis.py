@@ -33,7 +33,7 @@ router = APIRouter(prefix="/analysis", tags=["analysis"])
 async def root(name: str = None, query: str = None, db: Session = Depends(get_db)):
     q = Query(db, MAnalysis)
     q.add_name_query(name)
-    q.add_property_query(query)
+    q.add_property_query(query, AnalysisProperty)
 
     return q.all()
 

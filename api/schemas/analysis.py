@@ -13,11 +13,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ===============================================================================
+from datetime import datetime
+
 from . import NamedModel, ORMBaseModel
 
 
 class Analysis(ORMBaseModel):
-    pass
+    # analysis_type: str
+    # name: str
+    slug: str
+    sample_slug: str
+    timestamp: datetime
+    # is_bad: bool = False
+    # properties: dict = None
 
 
 class CreateAnalysis(ORMBaseModel):
@@ -25,7 +33,7 @@ class CreateAnalysis(ORMBaseModel):
     name: str
     slug: str
     sample_slug: str
-    timestamp: str
+    timestamp: datetime
     is_bad: bool = False
     properties: dict = None
 

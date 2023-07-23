@@ -15,6 +15,55 @@
 # ===============================================================================
 from datetime import datetime
 
+from sqlalchemy.engine.default import DefaultDialect
+from sqlalchemy.sql.sqltypes import NullType, String as SQLString, DateTime
+
+
+class StringLiteral(SQLString):
+    """Teach SA how to literalize various things."""
+
+    def literal_processor(self, dialect):
+        super_processor = super(StringLiteral, self).literal_processor(dialect)
+
+        def process(value):
+            if isinstance(value, int):
+                return str(value)
+            if not isinstance(value, str):
+                value = str(value)
+            result = super_processor(value)
+            if isinstance(result, bytes):
+                result = result.decode(dialect.encoding)
+            return result
+
+        return process
+
+
+class LiteralDialect(DefaultDialect):
+    colspecs = {
+        # prevent various encoding explosions
+        # String: StringLiteral,
+        # teach SA about how to literalize a datetime
+        DateTime: StringLiteral,
+        # don't format py2 long integers to NULL
+        NullType: StringLiteral,
+    }
+
+
+def literalquery(statement):
+    """NOTE: This is entirely insecure. DO NOT execute the resulting strings."""
+    # import sqlalchemy.orm
+    # if isinstance(statement, sqlalchemy.orm.Query):
+    #     statement = statement.statement
+
+    return statement.compile(
+        dialect=LiteralDialect(),
+        compile_kwargs={"literal_binds": True},
+    ).string
+
+
+def compile_query(query):
+    return literalquery(query.statement)
+
 
 class Query:
     def __init__(self, db, table):
@@ -30,11 +79,13 @@ class Query:
         return item
 
     def all(self):
+        print(compile_query(self.q))
+
         return self.q.all()
 
     def add_embaro_query(self, embargoed):
         q = self.q
-        now = datetime.datetime.now()
+        now = datetime.now()
         if embargoed is not None:
             q = q.filter(self.table.embargo_date > now.date())
         self.q = q
@@ -51,27 +102,29 @@ class Query:
             q = q.filter(self.table.slug == slug)
         self.q = q
 
-    def add_property_query(self, query):
+    def add_property_query(self, query, property_table):
         q = self.q
-        table = self.table
+
         f = None
-        q = q.join(table)
-        query, comp, value = query.split(" ")
-        if comp == "==":
-            f = table.value == value
-        elif comp == ">=":
-            f = table.value >= value
-        elif comp == "<=":
-            f = table.value <= value
-        elif comp == ">":
-            f = table.value > value
-        elif comp == "<":
-            f = table.value < value
+        if query:
+            q = q.join(property_table)
+            slug, comp, value = query.split(" ")
+            if comp == "==":
+                f = property_table.value == value
+            elif comp == ">=":
+                f = property_table.value >= float(value)
+            elif comp == "<=":
+                f = property_table.value <= float(value)
+            elif comp == ">":
+                f = property_table.value > float(value)
+            elif comp == "<":
+                f = property_table.value < float(value)
 
-        if f:
-            q = q.filter(f)
+            q = q.filter(property_table.slug == slug)
+            if f is not None:
+                q = q.filter(f)
 
-        self.q = q
+            self.q = q
 
 
 def root_query(name: str, db, table):
@@ -79,7 +132,6 @@ def root_query(name: str, db, table):
     if name:
         q = q.filter(table.name == name)
     return q.all()
-
 
 #
 # def property_query(q, query, table):
