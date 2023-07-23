@@ -133,6 +133,7 @@ def root_query(name: str, db, table):
         q = q.filter(table.name == name)
     return q.all()
 
+
 #
 # def property_query(q, query, table):
 #     f = None
