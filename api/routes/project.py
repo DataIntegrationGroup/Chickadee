@@ -37,7 +37,7 @@ async def root(
 ):
     q = Query(db, MProject)
     q.add_name_query(name)
-    q.add_embaro_query(embargoed)
+    q.add_embargo_query(embargoed)
 
     # table = project.Project
     #

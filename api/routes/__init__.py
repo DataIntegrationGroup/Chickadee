@@ -15,6 +15,7 @@
 # ===============================================================================
 from datetime import datetime
 
+from sqlalchemy import intersect, union
 from sqlalchemy.engine.default import DefaultDialect
 from sqlalchemy.sql.sqltypes import NullType, String as SQLString, DateTime
 
@@ -83,7 +84,7 @@ class Query:
 
         return self.q.all()
 
-    def add_embaro_query(self, embargoed):
+    def add_embargo_query(self, embargoed):
         q = self.q
         now = datetime.now()
         if embargoed is not None:
@@ -103,26 +104,50 @@ class Query:
         self.q = q
 
     def add_property_query(self, query, property_table):
+        """
+        query is of the form  slug comp value
+        e.g. age > 10
+
+
+        :param query:
+        :param property_table:
+        :return:
+        """
         q = self.q
 
         f = None
         if query:
-            q = q.join(property_table)
-            slug, comp, value = query.split(" ")
-            if comp == "==":
-                f = property_table.value == value
-            elif comp == ">=":
-                f = property_table.value >= float(value)
-            elif comp == "<=":
-                f = property_table.value <= float(value)
-            elif comp == ">":
-                f = property_table.value > float(value)
-            elif comp == "<":
-                f = property_table.value < float(value)
+            subqueries = []
+            if " or " in query:
+                tag = ' or '
+                agg = union
+            else:
+                tag = ' and '
+                agg = intersect
 
-            q = q.filter(property_table.slug == slug)
-            if f is not None:
-                q = q.filter(f)
+            for qi in query.split(tag):
+                subq = self.db.query(self.table)
+                subq = subq.join(property_table)
+
+                slug, comp, value = qi.split(" ")
+
+                if comp == "==":
+                    f = property_table.value == value
+                elif comp == ">=":
+                    f = property_table.value >= float(value)
+                elif comp == "<=":
+                    f = property_table.value <= float(value)
+                elif comp == ">":
+                    f = property_table.value > float(value)
+                elif comp == "<":
+                    f = property_table.value < float(value)
+
+                subq = subq.filter(property_table.slug == slug)
+                if f is not None:
+                    subqueries.append(subq.filter(f).subquery())
+
+            if subqueries:
+                q = q.filter(self.table.slug.in_(agg(*subqueries)))
 
             self.q = q
 
