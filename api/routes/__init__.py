@@ -119,10 +119,10 @@ class Query:
         if query:
             subqueries = []
             if " or " in query:
-                tag = ' or '
+                tag = " or "
                 agg = union
             else:
-                tag = ' and '
+                tag = " and "
                 agg = intersect
 
             for qi in query.split(tag):
