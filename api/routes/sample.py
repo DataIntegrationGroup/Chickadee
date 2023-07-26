@@ -14,8 +14,10 @@
 # limitations under the License.
 # ===============================================================================
 from typing import List
+from sklearn import svm
 
 from fastapi import APIRouter, Depends
+from sqlalchemy import or_
 from sqlalchemy.orm import Session
 from starlette.responses import Response
 from starlette.status import HTTP_200_OK, HTTP_422_UNPROCESSABLE_ENTITY
@@ -54,7 +56,7 @@ async def create_sample(sample: CreateSample, db: Session = Depends(get_db)):
     return dbsample
 
 
-from numpy import linspace, zeros, full, exp, pi, argmax, mean, array, std
+from numpy import linspace, zeros, full, exp, pi, argmax, mean, array, std, column_stack
 from scipy.stats import kstest, norm, ttest_ind
 
 
@@ -80,7 +82,7 @@ def cumulative_probability(ages, errors, xmi, xma, n=100):
     return x, probs
 
 
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 
 
 @router.get("/source_match")
@@ -100,47 +102,51 @@ async def match_to_source(
         q = q.join(Analysis)
         q = q.join(MSample)
         q = q.filter(MSample.slug == si.slug)
-        q = q.filter(AnalysisProperty.slug == "age")
+        q = q.filter(or_(AnalysisProperty.slug == 'age', AnalysisProperty.slug == 'kca'))
+
         ans = q.all()
 
-        ages = [a.value for a in ans]
-        errors = [a.error for a in ans]
+        ages = [a.value for a in ans if a.slug == 'age']
+        age_errors = [a.error for a in ans if a.slug == 'age']
 
-        zscore = (age - mean(ages)) / std(ages)
-        # print(zscore)
+        kcas = [a.value for a in ans if a.slug == 'kca']
+        kca_errors = [a.error for a in ans if a.slug == 'kca']
 
-        x, cdf = cumulative_probability(
-            ages,
-            errors,
-            (min(ages) - max(errors)) * 0.95,
-            (max(ages) + max(errors)) * 1.05,
-            n=n,
-        )
-        gs = norm(loc=age, scale=age_error).cdf(x)
+        x = column_stack((ages, kcas))
+        y = [a.analysis.name for a in ans if a.slug == 'age']
 
-        ccdf = []
-        for i, ci in enumerate(cdf):
-            if not i:
-                ccdf.append(ci)
-            else:
-                ccdf.append(ci + ccdf[i - 1])
+        clf = svm.SVC()
+        clf.fit(x, y)
+        print(clf.predict([[age, kca]]))
 
-        ccdf = array(ccdf)
-        # print(gs, argmax(gs), len(gs))
-        # ds = (x - full(n, age)) ** 2
-        # es2 = full(n, 2 * age_error * age_error)
-        # gs = (es2 * pi) ** -0.5 * exp(-ds / es2)
-        # print(gs, age, age_error)
-        print(ttest_ind(norm(loc=age, scale=age_error).pdf(x), ages, equal_var=False))
-        r = kstest(ccdf / max(ccdf), gs / max(gs))
-        print(
-            r.pvalue, x[argmax(gs)], x[argmax(cdf)], age, age_error, mean(ages), zscore
-        )
-        if r.pvalue > 1e-5:
-            plt.plot(x, gs / max(gs))
-            plt.plot(x, ccdf / max(ccdf))
-            plt.plot(x, norm(loc=age, scale=age_error).pdf(x))
-            plt.show()
+        # zscore = (age - mean(ages))/std(ages)
+        # # print(zscore)
+        #
+        # x, cdf = cumulative_probability(ages, errors, (min(ages) - max(errors)) * 0.95,
+        #                                 (max(ages) + max(errors)) * 1.05, n=n)
+        # gs = norm(loc=age, scale=age_error).cdf(x)
+        #
+        # ccdf = []
+        # for i, ci in enumerate(cdf):
+        #     if not i:
+        #         ccdf.append(ci)
+        #     else:
+        #         ccdf.append(ci + ccdf[i-1])
+        #
+        # ccdf = array(ccdf)
+        # # print(gs, argmax(gs), len(gs))
+        # # ds = (x - full(n, age)) ** 2
+        # # es2 = full(n, 2 * age_error * age_error)
+        # # gs = (es2 * pi) ** -0.5 * exp(-ds / es2)
+        # # print(gs, age, age_error)
+        # print(ttest_ind(norm(loc=age, scale=age_error).pdf(x), ages, equal_var=False))
+        # r = kstest(ccdf/max(ccdf), gs/max(gs))
+        # print(r.pvalue, x[argmax(gs)], x[argmax(cdf)], age, age_error, mean(ages), zscore)
+        # if r.pvalue > 1e-5:
+        #     plt.plot(x, gs/max(gs))
+        #     plt.plot(x, ccdf/max(ccdf))
+        #     plt.plot(x, norm(loc=age, scale=age_error).pdf(x))
+        #     plt.show()
 
     return "ok"
 

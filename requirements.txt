@@ -6,3 +6,4 @@ geoalchemy2
 psycopg
 numpy
 scipy
+scikit-learn
