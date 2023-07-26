@@ -17,25 +17,34 @@
 from typing import List
 
 from fastapi import APIRouter, Depends
+from pydantic import Field
 from sqlalchemy.orm import Session
 from starlette.responses import Response
 from starlette.status import HTTP_200_OK, HTTP_422_UNPROCESSABLE_ENTITY
 
 from dependencies import get_db
-from models.analysis import Analysis as MAnalysis, AnalysisProperty
+from models.analysis import Analysis as MAnalysis, AnalysisProperty as MAnalysisProperty
 from routes import Query
-from schemas.analysis import Analysis, CreateAnalysis
+from schemas.analysis import Analysis, CreateAnalysis, AnalysisProperty
 
 router = APIRouter(prefix="/analysis", tags=["analysis"])
 
 
-@router.get("", response_model=List[Analysis])
+@router.get("", response_model=List)
 async def root(name: str = None, query: str = None, db: Session = Depends(get_db)):
     q = Query(db, MAnalysis)
     q.add_name_query(name)
-    q.add_property_query(query, AnalysisProperty)
+    q.add_property_query(query, MAnalysisProperty)
+    if query:
+        def factory(o):
+            obj = Analysis.model_validate(o)
+            obj.properties = [AnalysisProperty.model_validate(oi) for oi in o.properties if oi.slug in query]
+            return obj
+    else:
+        def factory(o):
+            return Analysis.model_validate(o)
 
-    return q.all()
+    return [factory(ai) for ai in q.all()]
 
 
 @router.post("", response_model=Analysis)
@@ -81,6 +90,5 @@ async def create(analysis: CreateAnalysis, db: Session = Depends(get_db)):
         q.add(prop)
 
     return an
-
 
 # ============= EOF =============================================

@@ -29,15 +29,22 @@ class Analysis(Base, SlugMixin):
     properties = relationship("AnalysisProperty", backref="analysis", lazy=True)
 
 
+class AnalysisGroup(Base, SlugMixin):
+    __tablename__ = "analysisgrouptbl"
+    analysis_slug = Column(String(80), ForeignKey("analysistbl.slug"), nullable=False)
+
+
+
 class AnalysisProperty(Base, PropertyMixin):
     __tablename__ = "analysispropertytbl"
 
     units = Column(String(80), nullable=True)
     analysis_slug = Column(String(80), ForeignKey("analysistbl.slug"), nullable=False)
 
-    value_str = Column(String(80), nullable=True)
-    value_bool = Column(Boolean, nullable=True)
-    value_int = Column(Integer, nullable=True)
+
+
+class AnalysisGroupProperty(Base, PropertyMixin):
+    __tablename__ = "analysisgrouppropertytbl"
 
 
 # ============= EOF =============================================

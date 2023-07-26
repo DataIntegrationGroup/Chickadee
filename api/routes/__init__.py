@@ -126,7 +126,7 @@ class Query:
                 agg = intersect
 
             for qi in query.split(tag):
-                subq = self.db.query(self.table)
+                subq = self.db.query(self.table.slug)
                 subq = subq.join(property_table)
 
                 slug, comp, value = qi.split(" ")
@@ -144,7 +144,7 @@ class Query:
 
                 subq = subq.filter(property_table.slug == slug)
                 if f is not None:
-                    subqueries.append(subq.filter(f).subquery())
+                    subqueries.append(subq.filter(f))
 
             if subqueries:
                 q = q.filter(self.table.slug.in_(agg(*subqueries)))

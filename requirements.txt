@@ -4,3 +4,5 @@ uvicorn
 sqlalchemy
 geoalchemy2
 psycopg
+numpy
+scipy

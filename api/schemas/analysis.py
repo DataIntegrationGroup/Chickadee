@@ -15,10 +15,12 @@
 # ===============================================================================
 from datetime import datetime
 
+from pydantic import Extra
+
 from . import NamedModel, ORMBaseModel
 
 
-class Analysis(ORMBaseModel):
+class Analysis(ORMBaseModel, extra=Extra.allow):
     # analysis_type: str
     # name: str
     slug: str
@@ -38,4 +40,9 @@ class CreateAnalysis(ORMBaseModel):
     properties: dict = None
 
 
+class AnalysisProperty(ORMBaseModel):
+    slug: str
+    value: float
+    error: float
+    units: str = None
 # ============= EOF =============================================
