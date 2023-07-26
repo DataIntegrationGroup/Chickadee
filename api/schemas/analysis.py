@@ -45,4 +45,6 @@ class AnalysisProperty(ORMBaseModel):
     value: float
     error: float
     units: str = None
+
+
 # ============= EOF =============================================

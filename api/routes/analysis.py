@@ -36,11 +36,18 @@ async def root(name: str = None, query: str = None, db: Session = Depends(get_db
     q.add_name_query(name)
     q.add_property_query(query, MAnalysisProperty)
     if query:
+
         def factory(o):
             obj = Analysis.model_validate(o)
-            obj.properties = [AnalysisProperty.model_validate(oi) for oi in o.properties if oi.slug in query]
+            obj.properties = [
+                AnalysisProperty.model_validate(oi)
+                for oi in o.properties
+                if oi.slug in query
+            ]
             return obj
+
     else:
+
         def factory(o):
             return Analysis.model_validate(o)
 
@@ -90,5 +97,6 @@ async def create(analysis: CreateAnalysis, db: Session = Depends(get_db)):
         q.add(prop)
 
     return an
+
 
 # ============= EOF =============================================

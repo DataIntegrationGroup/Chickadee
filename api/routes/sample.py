@@ -84,11 +84,13 @@ import matplotlib.pyplot as plt
 
 
 @router.get("/source_match")
-async def match_to_source(age: str = None, kca: str = None, db: Session = Depends(get_db)):
+async def match_to_source(
+    age: str = None, kca: str = None, db: Session = Depends(get_db)
+):
     if age:
-        age, age_error = [float(a) for a in age.split(',')]
+        age, age_error = [float(a) for a in age.split(",")]
     if kca:
-        kca, kca_error = [float(a) for a in kca.split(',')]
+        kca, kca_error = [float(a) for a in kca.split(",")]
 
     q = Query(db, MSample)
     samples = q.all()
@@ -98,17 +100,22 @@ async def match_to_source(age: str = None, kca: str = None, db: Session = Depend
         q = q.join(Analysis)
         q = q.join(MSample)
         q = q.filter(MSample.slug == si.slug)
-        q = q.filter(AnalysisProperty.slug == 'age')
+        q = q.filter(AnalysisProperty.slug == "age")
         ans = q.all()
 
         ages = [a.value for a in ans]
         errors = [a.error for a in ans]
 
-        zscore = (age - mean(ages))/std(ages)
+        zscore = (age - mean(ages)) / std(ages)
         # print(zscore)
 
-        x, cdf = cumulative_probability(ages, errors, (min(ages) - max(errors)) * 0.95,
-                                        (max(ages) + max(errors)) * 1.05, n=n)
+        x, cdf = cumulative_probability(
+            ages,
+            errors,
+            (min(ages) - max(errors)) * 0.95,
+            (max(ages) + max(errors)) * 1.05,
+            n=n,
+        )
         gs = norm(loc=age, scale=age_error).cdf(x)
 
         ccdf = []
@@ -116,7 +123,7 @@ async def match_to_source(age: str = None, kca: str = None, db: Session = Depend
             if not i:
                 ccdf.append(ci)
             else:
-                ccdf.append(ci + ccdf[i-1])
+                ccdf.append(ci + ccdf[i - 1])
 
         ccdf = array(ccdf)
         # print(gs, argmax(gs), len(gs))
@@ -125,13 +132,17 @@ async def match_to_source(age: str = None, kca: str = None, db: Session = Depend
         # gs = (es2 * pi) ** -0.5 * exp(-ds / es2)
         # print(gs, age, age_error)
         print(ttest_ind(norm(loc=age, scale=age_error).pdf(x), ages, equal_var=False))
-        r = kstest(ccdf/max(ccdf), gs/max(gs))
-        print(r.pvalue, x[argmax(gs)], x[argmax(cdf)], age, age_error, mean(ages), zscore)
+        r = kstest(ccdf / max(ccdf), gs / max(gs))
+        print(
+            r.pvalue, x[argmax(gs)], x[argmax(cdf)], age, age_error, mean(ages), zscore
+        )
         if r.pvalue > 1e-5:
-            plt.plot(x, gs/max(gs))
-            plt.plot(x, ccdf/max(ccdf))
+            plt.plot(x, gs / max(gs))
+            plt.plot(x, ccdf / max(ccdf))
             plt.plot(x, norm(loc=age, scale=age_error).pdf(x))
             plt.show()
 
-    return 'ok'
+    return "ok"
+
+
 # ============= EOF =============================================

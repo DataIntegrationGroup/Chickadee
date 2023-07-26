@@ -34,13 +34,11 @@ class AnalysisGroup(Base, SlugMixin):
     analysis_slug = Column(String(80), ForeignKey("analysistbl.slug"), nullable=False)
 
 
-
 class AnalysisProperty(Base, PropertyMixin):
     __tablename__ = "analysispropertytbl"
 
     units = Column(String(80), nullable=True)
     analysis_slug = Column(String(80), ForeignKey("analysistbl.slug"), nullable=False)
-
 
 
 class AnalysisGroupProperty(Base, PropertyMixin):
