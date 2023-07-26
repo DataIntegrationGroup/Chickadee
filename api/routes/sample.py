@@ -102,18 +102,20 @@ async def match_to_source(
         q = q.join(Analysis)
         q = q.join(MSample)
         q = q.filter(MSample.slug == si.slug)
-        q = q.filter(or_(AnalysisProperty.slug == 'age', AnalysisProperty.slug == 'kca'))
+        q = q.filter(
+            or_(AnalysisProperty.slug == "age", AnalysisProperty.slug == "kca")
+        )
 
         ans = q.all()
 
-        ages = [a.value for a in ans if a.slug == 'age']
-        age_errors = [a.error for a in ans if a.slug == 'age']
+        ages = [a.value for a in ans if a.slug == "age"]
+        age_errors = [a.error for a in ans if a.slug == "age"]
 
-        kcas = [a.value for a in ans if a.slug == 'kca']
-        kca_errors = [a.error for a in ans if a.slug == 'kca']
+        kcas = [a.value for a in ans if a.slug == "kca"]
+        kca_errors = [a.error for a in ans if a.slug == "kca"]
 
         x = column_stack((ages, kcas))
-        y = [a.analysis.name for a in ans if a.slug == 'age']
+        y = [a.analysis.name for a in ans if a.slug == "age"]
 
         clf = svm.SVC()
         clf.fit(x, y)
