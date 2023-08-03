@@ -61,8 +61,23 @@ async def create_sample(sample: CreateSample, db: Session = Depends(get_db)):
     return dbsample
 
 
-from numpy import linspace, zeros, full, exp, pi, argmax, mean, array, std, column_stack, arange, isnan, c_, meshgrid, \
-    unique
+from numpy import (
+    linspace,
+    zeros,
+    full,
+    exp,
+    pi,
+    argmax,
+    mean,
+    array,
+    std,
+    column_stack,
+    arange,
+    isnan,
+    c_,
+    meshgrid,
+    unique,
+)
 from scipy.stats import kstest, norm, ttest_ind
 
 # def cumulative_probability(ages, errors, xmi, xma, n=100):
@@ -96,6 +111,7 @@ except ImportError:
 
 ANS = None
 
+
 def get_analyses():
     global ANS
     if ANS:
@@ -115,11 +131,13 @@ def get_analyses():
     ANS = ans
     return ans
 
+
 get_analyses()
+
 
 @router.get("/source_match")
 async def match_to_source(
-        age: str = None, kca: str = None, db: Session = Depends(get_db)
+    age: str = None, kca: str = None, db: Session = Depends(get_db)
 ):
     if age:
         age, age_error = [float(a) for a in age.split(",")]
@@ -209,58 +227,68 @@ async def match_to_source(
         # ypred = clf.predict(x)
         idx = y == k
         if PLOT:
-            plt.scatter(x[idx, 0], x[idx, 1], marker='+')
+            plt.scatter(x[idx, 0], x[idx, 1], marker="+")
             probas = clf.predict_proba(Xfull)
-            handle = plt.imshow(probas[:, k].reshape((nstep, nstep)), extent=(xmin, xmax, ymin, ymax), origin="lower")
+            handle = plt.imshow(
+                probas[:, k].reshape((nstep, nstep)),
+                extent=(xmin, xmax, ymin, ymax),
+                origin="lower",
+            )
             # ax = plt.axes([0.15, 0.04, 0.7, 0.05])
             # plt.colorbar(handle, orientation="horizontal")
             plt.show()
 
-    ages = [a.value for a in ans if a.slug == "age" and a.analysis.sample_slug == pklass]
-    kcas = [a.value for a in ans if a.slug == "kca" and a.analysis.sample_slug == pklass]
+    ages = [
+        a.value for a in ans if a.slug == "age" and a.analysis.sample_slug == pklass
+    ]
+    kcas = [
+        a.value for a in ans if a.slug == "kca" and a.analysis.sample_slug == pklass
+    ]
     # print(mean(ages), std(ages), mean(kcas), std(kcas))
 
-        # zscore = (age - mean(ages))/std(ages)
-        # # print(zscore)
-        #
-        # x, cdf = cumulative_probability(ages, errors, (min(ages) - max(errors)) * 0.95,
-        #                                 (max(ages) + max(errors)) * 1.05, n=n)
-        # gs = norm(loc=age, scale=age_error).cdf(x)
-        #
-        # ccdf = []
-        # for i, ci in enumerate(cdf):
-        #     if not i:
-        #         ccdf.append(ci)
-        #     else:
-        #         ccdf.append(ci + ccdf[i-1])
-        #
-        # ccdf = array(ccdf)
-        # # print(gs, argmax(gs), len(gs))
-        # # ds = (x - full(n, age)) ** 2
-        # # es2 = full(n, 2 * age_error * age_error)
-        # # gs = (es2 * pi) ** -0.5 * exp(-ds / es2)
-        # # print(gs, age, age_error)
-        # print(ttest_ind(norm(loc=age, scale=age_error).pdf(x), ages, equal_var=False))
-        # r = kstest(ccdf/max(ccdf), gs/max(gs))
-        # print(r.pvalue, x[argmax(gs)], x[argmax(cdf)], age, age_error, mean(ages), zscore)
-        # if r.pvalue > 1e-5:
-        #     plt.plot(x, gs/max(gs))
-        #     plt.plot(x, ccdf/max(ccdf))
-        #     plt.plot(x, norm(loc=age, scale=age_error).pdf(x))
-        #     plt.show()
+    # zscore = (age - mean(ages))/std(ages)
+    # # print(zscore)
+    #
+    # x, cdf = cumulative_probability(ages, errors, (min(ages) - max(errors)) * 0.95,
+    #                                 (max(ages) + max(errors)) * 1.05, n=n)
+    # gs = norm(loc=age, scale=age_error).cdf(x)
+    #
+    # ccdf = []
+    # for i, ci in enumerate(cdf):
+    #     if not i:
+    #         ccdf.append(ci)
+    #     else:
+    #         ccdf.append(ci + ccdf[i-1])
+    #
+    # ccdf = array(ccdf)
+    # # print(gs, argmax(gs), len(gs))
+    # # ds = (x - full(n, age)) ** 2
+    # # es2 = full(n, 2 * age_error * age_error)
+    # # gs = (es2 * pi) ** -0.5 * exp(-ds / es2)
+    # # print(gs, age, age_error)
+    # print(ttest_ind(norm(loc=age, scale=age_error).pdf(x), ages, equal_var=False))
+    # r = kstest(ccdf/max(ccdf), gs/max(gs))
+    # print(r.pvalue, x[argmax(gs)], x[argmax(cdf)], age, age_error, mean(ages), zscore)
+    # if r.pvalue > 1e-5:
+    #     plt.plot(x, gs/max(gs))
+    #     plt.plot(x, ccdf/max(ccdf))
+    #     plt.plot(x, norm(loc=age, scale=age_error).pdf(x))
+    #     plt.show()
     mage = mean(ages)
     mkca = mean(kcas)
     age_zscore = (age - mage) / std(ages)
     kca_zscore = (kca - mkca) / std(kcas)
-    return {"source": {"name": pklass,
-                       "mean_age": mage,
-                       "mean_kca": mkca,
-                       "probability_score": score,
-                       "age_zscore": age_zscore,
-                       "kca_zscore": kca_zscore
-                       },
-            "sink": {"age": age, "kca": kca},
-            }
+    return {
+        "source": {
+            "name": pklass,
+            "mean_age": mage,
+            "mean_kca": mkca,
+            "probability_score": score,
+            "age_zscore": age_zscore,
+            "kca_zscore": kca_zscore,
+        },
+        "sink": {"age": age, "kca": kca},
+    }
 
 
 # ============= EOF =============================================
