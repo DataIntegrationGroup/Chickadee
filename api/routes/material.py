@@ -20,12 +20,13 @@ from sqlalchemy.orm import Session
 from starlette.responses import Response
 from starlette.status import HTTP_200_OK, HTTP_422_UNPROCESSABLE_ENTITY
 
+from constants import API_PREFIX, API_VERSION
 from models.sample import Sample as MSample, Material as MMaterial
 from dependencies import get_db
 from routes import Query
 from schemas.sample import Sample, Material, CreateSample
 
-router = APIRouter(prefix="/material", tags=["Material"])
+router = APIRouter(prefix=f"{API_PREFIX}/material", tags=["Material"])
 
 
 @router.get("", response_model=List[Material])

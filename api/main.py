@@ -13,13 +13,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ===============================================================================
+from datetime import datetime
+
 from app import app
+from constants import API_PREFIX
 
 from database import engine
 from models import sample, project, analysis, Base
 
-# Base.metadata.drop_all(bind=engine)
-# Base.metadata.create_all(bind=engine)
+Base.metadata.drop_all(bind=engine)
+Base.metadata.create_all(bind=engine)
 
 
 from routes import sample, project, analysis, material
@@ -28,6 +31,12 @@ app.include_router(sample.router)
 app.include_router(project.router)
 app.include_router(analysis.router)
 app.include_router(material.router)
+
+
+@app.get(f"{API_PREFIX}/health")
+def get_health():
+    return {"status": "ok", "server_time": datetime.now().isoformat()}
+
 
 if __name__ == "__main__":
     import uvicorn

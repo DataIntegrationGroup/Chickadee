@@ -22,12 +22,13 @@ from sqlalchemy.orm import Session
 from starlette.responses import Response
 from starlette.status import HTTP_200_OK, HTTP_422_UNPROCESSABLE_ENTITY
 
+from constants import API_PREFIX, API_VERSION
 from dependencies import get_db
 from models.analysis import Analysis as MAnalysis, AnalysisProperty as MAnalysisProperty
 from routes import Query
 from schemas.analysis import Analysis, CreateAnalysis, AnalysisProperty
 
-router = APIRouter(prefix="/analysis", tags=["analysis"])
+router = APIRouter(prefix=f"{API_PREFIX}/analysis", tags=["analysis"])
 
 
 @router.get("", response_model=List)

@@ -21,12 +21,13 @@ from sqlalchemy.orm import Session
 from starlette.responses import Response
 from starlette.status import HTTP_200_OK, HTTP_422_UNPROCESSABLE_ENTITY
 
+from constants import API_PREFIX, API_VERSION
 from dependencies import get_db
 from models.project import Project as MProject
 from routes import root_query, Query
 from schemas.project import Project
 
-router = APIRouter(prefix="/project", tags=["project"])
+router = APIRouter(prefix=f"{API_PREFIX}/project", tags=["project"])
 
 
 @router.get("", response_model=List[Project])

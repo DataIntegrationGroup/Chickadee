@@ -13,28 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ===============================================================================
-import os
 
-from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
-
-# SQLALCHEMY_DATABASE_URL = "sqlite:///./sql_app.db"
-# SQLALCHEMY_DATABASE_URL = "postgresql://user:password@postgresserver/db"
-
-user = os.environ.get("POSTGRES_USER")
-password = os.environ.get("POSTGRES_PASSWORD")
-host = os.environ.get("POSTGRES_HOST")
-database = os.environ.get("POSTGRES_DB")
-
-SQLALCHEMY_DATABASE_URL = f"postgresql+psycopg://{user}:{password}@{host}/{database}"
-
-engine = create_engine(
-    SQLALCHEMY_DATABASE_URL,
-    # connect_args={"timeout": 1}
-)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-Base = declarative_base()
-
+API_VERSION = "v1"
+API_PREFIX = f'/api/{API_VERSION}'
 # ============= EOF =============================================

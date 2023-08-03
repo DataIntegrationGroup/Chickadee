@@ -1,0 +1,6 @@
+fastapi
+sqlalchemy
+geoalchemy2
+uvicorn
+psycopg
+scikit-learn
