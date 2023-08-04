@@ -36,4 +36,6 @@ class Material(NamedModel):
 class GeoJSONFeatureCollection(BaseModel):
     type: str = "FeatureCollection"
     features: list = Field(..., alias="features")
+
+
 # ============= EOF =============================================

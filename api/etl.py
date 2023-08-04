@@ -20,12 +20,12 @@ import requests
 from geo_utils import utm_to_latlon
 
 
-def test(v, t='yes'):
+def test(v, t="yes"):
     return v.lower() == t.lower()
 
 
 def extract():
-    p = './testdata/NMGeochron2022_samples.csv'
+    p = "./testdata/NMGeochron2022_samples.csv"
     with open(p, "r") as rfile:
         reader = csv.DictReader(rfile)
         for i, row in enumerate(reader):
@@ -36,57 +36,66 @@ def extract():
 
 def transform(data):
     for row in data:
-        if not test(row['Include Sparrow']):
+        if not test(row["Include Sparrow"]):
             continue
 
         # if not test(row['Complete']):
         #     continue
 
-        if not (row['Latitude'] and row['Longitude']):
-            e = row['Easting']
-            n = row['Northing']
+        if not (row["Latitude"] and row["Longitude"]):
+            e = row["Easting"]
+            n = row["Northing"]
 
             if not (e and n):
                 continue
 
-            zone = row['Zone']
-            datum = row.get('Datum')
+            zone = row["Zone"]
+            datum = row.get("Datum")
             if datum:
-                datum = datum.upper().replace(' ', '')
+                datum = datum.upper().replace(" ", "")
             if not zone:
                 zone = 13
             lat, lon = utm_to_latlon(e, n, zone=zone, datum=datum)
-            row['Latitude'] = lat
-            row['Longitude'] = lon
+            row["Latitude"] = lat
+            row["Longitude"] = lon
         yield row
 
 
 def load(data):
     for row in data:
-
-        requests.post('http://localhost:4039/api/v1/material/add', json=make_material_payload(row))
-        requests.post('http://localhost:4039/api/v1/project/add', json=make_project_payload(row))
-        requests.post('http://localhost:4039/api/v1/sample/add', json=make_sample_payload(row))
+        requests.post(
+            "http://localhost:4039/api/v1/material/add", json=make_material_payload(row)
+        )
+        requests.post(
+            "http://localhost:4039/api/v1/project/add", json=make_project_payload(row)
+        )
+        requests.post(
+            "http://localhost:4039/api/v1/sample/add", json=make_sample_payload(row)
+        )
 
 
 def make_project_payload(row):
-    return {'name': row['Project']}
+    return {"name": row["Project"]}
+
 
 def make_material_payload(row):
-    return {'name': row['Material']}
+    return {"name": row["Material"]}
+
 
 def make_sample_payload(row):
-    return {'name': row['Sample'],
-            'material': row['Material'],
-            'project': row['Project'],
-            'latitude': row['Latitude'],
-            'longitude': row['Longitude'],
-            }
+    return {
+        "name": row["Sample"],
+        "material": row["Material"],
+        "project": row["Project"],
+        "latitude": row["Latitude"],
+        "longitude": row["Longitude"],
+    }
+
 
 def etl():
     load(transform(extract()))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     etl()
 # ============= EOF =============================================

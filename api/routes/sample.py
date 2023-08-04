@@ -68,7 +68,7 @@ async def root(name: str = None, db: Session = Depends(get_db)):
 
 @router.post("/add", response_model=Sample)
 async def create_sample(sample: CreateSample, db: Session = Depends(get_db)):
-    print('sfas', sample)
+    print("sfas", sample)
     q = Query(db, MSample)
     q.add_name_query(sample.name)
     print(q.all())
@@ -77,7 +77,9 @@ async def create_sample(sample: CreateSample, db: Session = Depends(get_db)):
 
     params = sample.model_dump()
 
-    params['location'] = 'SRID=4326;POINT({} {})'.format(params.pop('longitude'), params.pop('latitude'))
+    params["location"] = "SRID=4326;POINT({} {})".format(
+        params.pop("longitude"), params.pop("latitude")
+    )
 
     params["slug"] = params["name"].replace(" ", "_")
     project = params.pop("project")
@@ -164,7 +166,7 @@ get_analyses()
 
 @router.get("/source_match")
 async def match_to_source(
-        age: str = None, kca: str = None, db: Session = Depends(get_db)
+    age: str = None, kca: str = None, db: Session = Depends(get_db)
 ):
     if age:
         age, age_error = [float(a) for a in age.split(",")]
@@ -316,5 +318,6 @@ async def match_to_source(
         },
         "sink": {"age": age, "kca": kca},
     }
+
 
 # ============= EOF =============================================
