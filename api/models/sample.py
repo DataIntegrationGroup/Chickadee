@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ===============================================================================
-
+from geoalchemy2.shape import to_shape
 from sqlalchemy import Column, String, Float, Integer, ForeignKey
 from geoalchemy2 import Geometry
 from sqlalchemy.orm import relationship, declared_attr
@@ -28,6 +28,11 @@ class Sample(Base, SlugMixin, EmbargoMixin):
     material_slug = Column(String(80), ForeignKey("materialtbl.slug"))
 
     properties = relationship("SampleProperty", backref="sample", lazy=True)
+
+    @property
+    def geometry(self):
+        point = to_shape(self.location)
+        return {"coordinates": [float(point.x), float(point.y)], "type": "Point"}
 
 
 class Material(Base, SlugMixin):

@@ -14,6 +14,8 @@
 # limitations under the License.
 # ===============================================================================
 from typing import List
+
+from geoalchemy2 import Geometry
 from sklearn import svm
 
 from fastapi import APIRouter, Depends
@@ -31,9 +33,30 @@ from models.analysis import Analysis, AnalysisProperty
 from models.sample import Sample as MSample, Material as MMaterial
 from dependencies import get_db
 from routes import Query
-from schemas.sample import Sample, Material, CreateSample
+from schemas.sample import Sample, Material, CreateSample, GeoJSONFeatureCollection
 
 router = APIRouter(prefix=f"{API_PREFIX}/sample", tags=["Sample"])
+
+
+@router.get("/geojson", response_model=GeoJSONFeatureCollection)
+def get_samples_geojson(db: Session = Depends(get_db)):
+    q = Query(db, MSample)
+
+    def togeojson(sample):
+        return {
+            "type": "Feature",
+            "properties": {
+                # "name": l.PointID,
+                # "well_depth": {"value": w.WellDepth, "units": "ft"},
+            },
+            "geometry": sample.geometry,
+        }
+
+    content = {
+        "features": [togeojson(l) for l in q.all()],
+    }
+    print(content)
+    return content
 
 
 @router.get("", response_model=List[Sample])
@@ -43,14 +66,19 @@ async def root(name: str = None, db: Session = Depends(get_db)):
     return q.all()
 
 
-@router.post("", response_model=Sample)
+@router.post("/add", response_model=Sample)
 async def create_sample(sample: CreateSample, db: Session = Depends(get_db)):
+    print('sfas', sample)
     q = Query(db, MSample)
     q.add_name_query(sample.name)
+    print(q.all())
     if q.all():
         return Response(status_code=HTTP_422_UNPROCESSABLE_ENTITY)
 
     params = sample.model_dump()
+
+    params['location'] = 'SRID=4326;POINT({} {})'.format(params.pop('longitude'), params.pop('latitude'))
+
     params["slug"] = params["name"].replace(" ", "_")
     project = params.pop("project")
     params["project_slug"] = project.replace(" ", "_")
@@ -108,7 +136,6 @@ except ImportError:
     plt = None
     PLOT = False
 
-
 ANS = None
 
 
@@ -137,7 +164,7 @@ get_analyses()
 
 @router.get("/source_match")
 async def match_to_source(
-    age: str = None, kca: str = None, db: Session = Depends(get_db)
+        age: str = None, kca: str = None, db: Session = Depends(get_db)
 ):
     if age:
         age, age_error = [float(a) for a in age.split(",")]
@@ -289,6 +316,5 @@ async def match_to_source(
         },
         "sink": {"age": age, "kca": kca},
     }
-
 
 # ============= EOF =============================================

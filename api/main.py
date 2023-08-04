@@ -15,14 +15,21 @@
 # ===============================================================================
 from datetime import datetime
 
+from fastapi import Depends
+from sqlalchemy.orm import Session
+from starlette.requests import Request
+from starlette.responses import HTMLResponse
+from starlette.templating import Jinja2Templates
+
 from app import app
 from constants import API_PREFIX
 
 from database import engine
+from dependencies import get_db
 from models import sample, project, analysis, Base
 
-Base.metadata.drop_all(bind=engine)
-Base.metadata.create_all(bind=engine)
+# Base.metadata.drop_all(bind=engine)
+# Base.metadata.create_all(bind=engine)
 
 
 from routes import sample, project, analysis, material
@@ -31,6 +38,31 @@ app.include_router(sample.router)
 app.include_router(project.router)
 app.include_router(analysis.router)
 app.include_router(material.router)
+
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent
+templates = Jinja2Templates(directory=str(Path(BASE_DIR, "templates")))
+
+
+@app.get("/mapboxtoken")
+def mapboxtoken():
+    return {
+        "token": "pk.eyJ1IjoiamFrZXJvc3N3ZGkiLCJhIjoiY2s3M3ZneGl4MGhkMDNrcjlocmNuNWg4bCJ9.4r1DRDQ_ja0fV2nnmlVT0A"
+    }
+
+
+@app.get("/map", response_class=HTMLResponse)
+def map_view(request: Request):
+    return templates.TemplateResponse(
+        "map_view.html",
+        {
+            "request": request,
+            # "center": {"lat": 34.5, "lon": -106.0},
+            # "zoom": 7,
+            # "data_url": "/locations/fc",
+        },
+    )
 
 
 @app.get(f"{API_PREFIX}/health")

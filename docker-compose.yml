@@ -35,8 +35,8 @@ services:
       - "4039:4039"
     volumes:
       - ./api:/api
-    depends_on:
-      - db
+#    depends_on:
+#      - db
     env_file:
       - ./api/.env
     healthcheck:
@@ -46,26 +46,26 @@ services:
       #      start_period: 20s
       #      timeout: 10s
 
-  db:
-    image: postgis/postgis
-    volumes:
-      - postgis-data:/var/lib/postgresql
-    env_file:
-      - ./api/.env
-    environment:
-      - POSTGRES_TZ=America/Denver
-      # If you need to create multiple database you can add coma separated databases eg gis,data
-      #      - ALLOW_IP_RANGE=0.0.0.0/0
-      # Add extensions you need to be enabled by default in the DB. Default are the five specified below
-
-#        - TZ=America/Denver
-#        - PGTZ=America/Denver
-    ports:
-      - "5432:5432"
-    restart: on-failure
-    healthcheck:
-      test: "exit 0"
-#      interval: 5s
+#  db:
+#    image: postgis/postgis
+#    volumes:
+#      - postgis-data:/var/lib/postgresql
+#    env_file:
+#      - ./api/.env
+#    environment:
+#      - POSTGRES_TZ=America/Denver
+#      # If you need to create multiple database you can add coma separated databases eg gis,data
+#      #      - ALLOW_IP_RANGE=0.0.0.0/0
+#      # Add extensions you need to be enabled by default in the DB. Default are the five specified below
+#
+##        - TZ=America/Denver
+##        - PGTZ=America/Denver
+#    ports:
+#      - "5432:5432"
+#    restart: on-failure
+#    healthcheck:
+#      test: "exit 0"
+##      interval: 5s
   pgbackups:
     image: prodrigestivill/postgres-backup-local
     restart: always
@@ -74,8 +74,8 @@ services:
       - ./pgbackups:/backups
     #    links:
     #      - db
-    depends_on:
-      - db
+#    depends_on:
+#      - db
     env_file:
       - ./api/.env
     environment:

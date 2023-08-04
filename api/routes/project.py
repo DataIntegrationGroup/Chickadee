@@ -51,7 +51,7 @@ async def root(
     # return root_query(name, db, project.Project)
 
 
-@router.post("", response_model=Project)
+@router.post("/add", response_model=Project)
 async def create(project: Project, db: Session = Depends(get_db)):
     q = Query(db, MProject)
     q.add_name_query(project.name)

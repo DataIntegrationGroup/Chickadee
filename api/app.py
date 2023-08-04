@@ -14,6 +14,7 @@
 # limitations under the License.
 # ===============================================================================
 from fastapi import FastAPI
+from starlette.staticfiles import StaticFiles
 
 app = FastAPI(
     title="Chickadee API",
@@ -23,5 +24,7 @@ app = FastAPI(
         "url": "https://www.apache.org/licenses/LICENSE-2.0.html",
     },
 )
+
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # ============= EOF =============================================

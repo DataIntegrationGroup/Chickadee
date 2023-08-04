@@ -36,7 +36,7 @@ async def root(name: str = None, db: Session = Depends(get_db)):
     return q.all()
 
 
-@router.post("", response_model=Material)
+@router.post("/add", response_model=Material)
 async def create_material(material: Material, db: Session = Depends(get_db)):
     q = Query(db, MMaterial)
     q.add_name_query(material.name)

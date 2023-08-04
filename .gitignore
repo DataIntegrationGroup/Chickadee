@@ -1,4 +1,5 @@
 .env
+.env_local
 testdata/
 
 # Byte-compiled / optimized / DLL files

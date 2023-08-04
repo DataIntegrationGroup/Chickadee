@@ -1,7 +1,8 @@
 fastapi
 sqlalchemy
-geoalchemy2
+geoalchemy2[shapely]
 uvicorn
 psycopg
 scikit-learn
 pyproj
+jinja2
