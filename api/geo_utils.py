@@ -18,18 +18,18 @@ import pyproj
 PROJECTIONS = {}
 
 
-def utm_to_latlon(e, n, zone=13, datum='WGS84', ellps=None):
+def utm_to_latlon(e, n, zone=13, datum="WGS84", ellps=None):
     if not datum:
         datum = "WGS84"
 
     datum = datum.upper()
     if not ellps:
-        if datum == 'WGS84':
-            ellps = 'WGS84'
-        elif datum == 'NAD83':
-            ellps = 'GRS80'
-        elif datum == 'NAD27':
-            ellps = 'clrk66'
+        if datum == "WGS84":
+            ellps = "WGS84"
+        elif datum == "NAD83":
+            ellps = "GRS80"
+        elif datum == "NAD27":
+            ellps = "clrk66"
 
     name = f"utm{zone}"
     if name not in PROJECTIONS:
@@ -47,5 +47,6 @@ def latlon_to_utm(lon, lat):
 
     pr = PROJECTIONS[name]
     return pr(lon, lat)
+
 
 # ============= EOF =============================================
