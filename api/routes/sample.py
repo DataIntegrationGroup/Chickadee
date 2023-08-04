@@ -33,7 +33,7 @@ from dependencies import get_db
 from routes import Query
 from schemas.sample import Sample, Material, CreateSample
 
-router = APIRouter(prefix=f"{API_PREFIX}/sample", tags=["sample"])
+router = APIRouter(prefix=f"{API_PREFIX}/sample", tags=["Sample"])
 
 
 @router.get("", response_model=List[Sample])

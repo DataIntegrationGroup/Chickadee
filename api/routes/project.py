@@ -27,7 +27,7 @@ from models.project import Project as MProject
 from routes import root_query, Query
 from schemas.project import Project
 
-router = APIRouter(prefix=f"{API_PREFIX}/project", tags=["project"])
+router = APIRouter(prefix=f"{API_PREFIX}/project", tags=["Project"])
 
 
 @router.get("", response_model=List[Project])

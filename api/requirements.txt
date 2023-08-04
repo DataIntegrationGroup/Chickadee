@@ -4,3 +4,4 @@ geoalchemy2
 uvicorn
 psycopg
 scikit-learn
+pyproj

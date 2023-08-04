@@ -28,7 +28,7 @@ from models.analysis import Analysis as MAnalysis, AnalysisProperty as MAnalysis
 from routes import Query
 from schemas.analysis import Analysis, CreateAnalysis, AnalysisProperty
 
-router = APIRouter(prefix=f"{API_PREFIX}/analysis", tags=["analysis"])
+router = APIRouter(prefix=f"{API_PREFIX}/analysis", tags=["Analysis"])
 
 
 @router.get("", response_model=List)
