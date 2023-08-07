@@ -46,7 +46,9 @@ def get_samples_geojson(db: Session = Depends(get_db)):
         return {
             "type": "Feature",
             "properties": {
-                # "name": l.PointID,
+                "name": sample.name,
+                "project": sample.project.name,
+                "material": sample.material.name,
                 # "well_depth": {"value": w.WellDepth, "units": "ft"},
             },
             "geometry": sample.geometry,
@@ -55,7 +57,7 @@ def get_samples_geojson(db: Session = Depends(get_db)):
     content = {
         "features": [togeojson(l) for l in q.all()],
     }
-    print(content)
+
     return content
 
 

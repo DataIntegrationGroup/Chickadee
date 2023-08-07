@@ -41,7 +41,7 @@ function initMap(center, zoom, dataurl){
 
     document.getElementById('geocoder-container').appendChild(geocoder.onAdd(map));
 
-    map.on('mouseenter', 'wells', (e) => {
+    map.on('mouseenter', 'samples', (e) => {
         map.getCanvas().style.cursor = 'pointer';
 
         // Copy coordinates array.
@@ -53,26 +53,34 @@ function initMap(center, zoom, dataurl){
         while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
             coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
         }
-        const description = e.features[0].properties.name
-        let wd = JSON.parse(e.features[0].properties.well_depth).value
-        if (wd == null){
-            wd = 'Not known'
-        }
+        // const description = e.features[0].properties.name
+        // let wd = JSON.parse(e.features[0].properties.well_depth).value
+        // if (wd == null){
+        //     wd = 'Not known'
+        // }
+        //
+        // const txt = '<b>'+description+'</b><br>Well Depth (ft): '+wd
+        const props = e.features[0].properties
+        const txt = '<b>Name</b> ' + props.name + '<br>' +
+            '<b>Location:</b> ' + coordinates[0].toFixed(3) +','+coordinates[1].toFixed(3) + '<br>' +
+            '<b>Project:</b> ' + props.project + '<br>' +
+            '<b>Material:</b> '+ props.material
 
-        const txt = '<b>'+description+'</b><br>Well Depth (ft): '+wd
-
+        console.log(e.features[0])
         popup.setLngLat(coordinates).setHTML(txt).addTo(map);
 
     });
 
-    map.on('mouseleave', 'wells', () => {
+    map.on('mouseleave', 'samples', () => {
         map.getCanvas().style.cursor = '';
         popup.remove();
     });
-    map.on('click', 'wells', (e) => {
-        const pointid = e.features[0].properties.name
-        window.open('/locations/view/' + pointid, '_blank')
-    });
+
+    // map.on('click', 'samples', (e) => {
+    //     const pointid = e.features[0].properties.name
+    //     window.open('/locations/view/' + pointid, '_blank')
+    // });
+
     map.on('style.load',  (s) => {
         console.log('style loaded', s)
         console.log($('#show_macrostrat'))
@@ -92,13 +100,13 @@ function initMap(center, zoom, dataurl){
             })
         }
 
-        map.addSource('wells', {type: 'geojson',
+        map.addSource('samples', {type: 'geojson',
             data: dataurl });
 
         map.addLayer({
-            id: 'wells',
+            id: 'samples',
             type: 'circle',
-            source: 'wells',
+            source: 'samples',
             paint: {
                 'circle-radius': 4,
                 'circle-color': '#224bb4',

@@ -39,6 +39,7 @@ class Material(Base, SlugMixin):
     __tablename__ = "materialtbl"
 
     properties = relationship("MaterialProperty", backref="material", lazy=True)
+    sample = relationship("Sample", backref="material", lazy=True)
 
 
 class MaterialProperty(Base, PropertyMixin):
