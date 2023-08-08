@@ -30,9 +30,9 @@ from starlette.status import HTTP_200_OK, HTTP_422_UNPROCESSABLE_ENTITY
 
 from constants import API_PREFIX, API_VERSION
 from models.analysis import Analysis, AnalysisProperty
-from models.sample import Sample as MSample, Material as MMaterial
+from models.sample import Sample as MSample, Material as MMaterial, SampleProperty
 from dependencies import get_db
-from routes import Query
+from routes import Query, make_properties
 from schemas.sample import Sample, Material, CreateSample, GeoJSONFeatureCollection
 
 router = APIRouter(prefix=f"{API_PREFIX}/sample", tags=["Sample"])
@@ -88,7 +88,12 @@ async def create_sample(sample: CreateSample, db: Session = Depends(get_db)):
     params["project_slug"] = project.replace(" ", "_")
     material = params.pop("material")
     params["material_slug"] = material.replace(" ", "_")
+
+    properties = params.pop("properties")
     dbsample = MSample(**params)
+
+    props = make_properties(properties, SampleProperty)
+    dbsample.properties = props
     dbsample = q.add(dbsample)
     return dbsample
 
@@ -168,7 +173,7 @@ get_analyses()
 
 @router.get("/source_match")
 async def match_to_source(
-    age: str = None, kca: str = None, db: Session = Depends(get_db)
+        age: str = None, kca: str = None, db: Session = Depends(get_db)
 ):
     if age:
         age, age_error = [float(a) for a in age.split(",")]
@@ -320,6 +325,5 @@ async def match_to_source(
         },
         "sink": {"age": age, "kca": kca},
     }
-
 
 # ============= EOF =============================================

@@ -25,7 +25,7 @@ from starlette.status import HTTP_200_OK, HTTP_422_UNPROCESSABLE_ENTITY
 from constants import API_PREFIX, API_VERSION
 from dependencies import get_db
 from models.analysis import Analysis as MAnalysis, AnalysisProperty as MAnalysisProperty
-from routes import Query
+from routes import Query, make_properties
 from schemas.analysis import Analysis, CreateAnalysis, AnalysisProperty
 
 router = APIRouter(prefix=f"{API_PREFIX}/analysis", tags=["Analysis"])
@@ -55,13 +55,15 @@ async def root(name: str = None, query: str = None, db: Session = Depends(get_db
     return [factory(ai) for ai in q.all()]
 
 
-@router.post("", response_model=Analysis)
+@router.post("/add", response_model=Analysis)
 async def create(analysis: CreateAnalysis, db: Session = Depends(get_db)):
     q = Query(db, MAnalysis)
     q.add_slug_query(analysis.slug)
     # q.add_name_query(analysis.analysis_name)
 
-    if q.all():
+    prev = q.all()
+    if prev:
+        print(prev)
         return Response(status_code=HTTP_422_UNPROCESSABLE_ENTITY)
 
     params = analysis.model_dump()
@@ -73,29 +75,32 @@ async def create(analysis: CreateAnalysis, db: Session = Depends(get_db)):
     params["slug"] = params["name"].replace(" ", "_")
     # sample = params.pop('sample')
     # params["slug"] = params["name"].replace(" ", "_")
-    print(params)
-    an = q.add(MAnalysis(**params))
+    an = MAnalysis(**params)
 
-    for k, v in properties.items():
-        prop = AnalysisProperty()
-        prop.analysis_slug = an.slug
+    props = make_properties(properties, MAnalysisProperty)
+    an.properties = props
 
-        prop.slug = k.replace(" ", "_")
-        prop.name = k
-
-        vv = v["value"]
-        if isinstance(vv, str):
-            prop.value_str = vv
-        elif isinstance(vv, float):
-            prop.value = vv
-            prop.error = v["error"]
-        elif isinstance(vv, bool):
-            prop.value_bool = vv
-        elif isinstance(vv, int):
-            prop.value_int = vv
-
-        prop.units = v["units"]
-        q.add(prop)
+    an = q.add(an)
+    # for k, v in properties.items():
+    #     prop = AnalysisProperty()
+    #     prop.analysis_slug = an.slug
+    #
+    #     prop.slug = k.replace(" ", "_")
+    #     prop.name = k
+    #
+    #     vv = v["value"]
+    #     if isinstance(vv, str):
+    #         prop.value_str = vv
+    #     elif isinstance(vv, float):
+    #         prop.value = vv
+    #         prop.error = v["error"]
+    #     elif isinstance(vv, bool):
+    #         prop.value_bool = vv
+    #     elif isinstance(vv, int):
+    #         prop.value_int = vv
+    #
+    #     prop.units = v["units"]
+    #     q.add(prop)
 
     return an
 

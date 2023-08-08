@@ -36,8 +36,6 @@ class AnalysisGroup(Base, SlugMixin):
 
 class AnalysisProperty(Base, PropertyMixin):
     __tablename__ = "analysispropertytbl"
-
-    units = Column(String(80), nullable=True)
     analysis_slug = Column(String(80), ForeignKey("analysistbl.slug"), nullable=False)
 
 

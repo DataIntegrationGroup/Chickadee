@@ -6,3 +6,7 @@ psycopg
 scikit-learn
 pyproj
 jinja2
+pandas
+openpyxl
+uncertainties
+

@@ -33,6 +33,11 @@ class SlugMixin:
 
 
 class PropertyMixin:
+
+    @declared_attr
+    def units(self):
+        return Column(String(80), nullable=True)
+
     @declared_attr
     def id(self):
         return Column(Integer, primary_key=True, autoincrement=True)

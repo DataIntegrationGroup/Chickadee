@@ -27,6 +27,7 @@ class CreateSample(NamedModel):
     material: str
     latitude: float
     longitude: float
+    properties: dict = Field(default_factory=dict)
 
 
 class Material(NamedModel):

@@ -14,10 +14,18 @@
 # limitations under the License.
 # ===============================================================================
 import csv
+from itertools import groupby
 
+import pandas as pd
+from datetime import datetime, time as dtime
+from uncertainties import nominal_value, std_dev, ufloat
 import requests
+from pandas import isnull
 
 from geo_utils import utm_to_latlon
+
+HOST = "localhost"
+PORT = 4039
 
 
 def test(v, t="yes"):
@@ -32,6 +40,55 @@ def extract():
             if i < 2:
                 continue
             yield row
+
+
+def extract_ds_analyses():
+    p = "/Users/jross/Sandbox/DSCompare/SJVF_sources.xls"
+    source_df = pd.read_excel(p, sheet_name="SJVF_sources")
+    for i, row in source_df.iterrows():
+        yield row.to_dict()
+
+
+def extract_ds():
+    p = "/Users/jross/Sandbox/DSCompare/SJVF_sources.xls"
+    source_summary_df = pd.read_excel(p, sheet_name="summary")
+
+    for i, su in source_summary_df.iterrows():
+        # idx = [(not isnull(row['Run_ID']) and row['Run_ID'].startswith(str(su['L#']))) for i, row in
+        #        source_df.iterrows()]
+        # analyses = source_df[idx]
+        # # print(analyses)
+        # ran = analyses.iloc[0]
+        #
+        # runtime = ran['Run_Hour']
+        # runtime = dtime(hour=int(runtime), minute=int(runtime % 1 * 60))
+        # rundate = ran['Run_Date']
+        # dt = datetime.combine(rundate, runtime).isoformat()
+
+        yield su.to_dict()
+
+
+def transform_ds(data):
+    for row in data:
+        row['Material'] = row['min']
+        row['Project'] = 'SanJuan Volcanic Field'
+        row['Latitude'] = row.get('Latitude', 35)
+        row['Longitude'] = row.get('Latitude', -106)
+        yield row
+
+
+def transform_analyses_ds(data):
+    for row in data:
+        if isnull(row['Sample']):
+            break
+        yield row
+
+
+def transform_samples_ds(data):
+    for row in data:
+        if isnull(row['Sample']):
+            break
+        yield row
 
 
 def transform(data):
@@ -62,16 +119,61 @@ def transform(data):
 
 
 def load(data):
+    # host = "129.138.12.35"
+
     for row in data:
         requests.post(
-            "http://localhost:4039/api/v1/material/add", json=make_material_payload(row)
+            f"http://{HOST}:{PORT}/api/v1/material/add", json=make_material_payload(row)
         )
         requests.post(
-            "http://localhost:4039/api/v1/project/add", json=make_project_payload(row)
+            f"http://{HOST}:{PORT}/api/v1/project/add", json=make_project_payload(row)
         )
         requests.post(
-            "http://localhost:4039/api/v1/sample/add", json=make_sample_payload(row)
+            f"http://{HOST}:{PORT}/api/v1/sample/add", json=make_sample_payload(row)
         )
+
+
+def load_ds_samples(data):
+    def key(d):
+        return d['Sample']
+
+    # data = [di for di in data if not isnull(di['Sample'])]
+    for sample, gs in groupby(sorted(data, key=key), key=key):
+        add('material', {'name': 'Sanidine'})
+        add('project', {'name': 'DS'})
+        add('sample', {'name': sample,
+                       'material': 'Sanidine',
+                       'project': 'DS',
+                       'properties': {},
+                       'latitude': 35,
+                       'longitude': -106})
+
+        # requests.post(
+        #     f"http://{HOST}:{PORT}/api/v1/material/add", json={'name': 'Sanidine'}
+        # )
+        # requests.post(
+        #     f"http://{HOST}:{PORT}/api/v1/project/add", json={'name': 'DS'}
+        # )
+        # requests.post(
+        #     f"http://{HOST}:{PORT}/api/v1/sample/add", json={'name': sample,
+        #                                                      'material': 'Sanidine',
+        #                                                      'project': 'DS',
+        #                                                      'properties': {},
+        #                                                      'latitude': 35,
+        #                                                      'longitude': -106}
+        # )
+
+
+def load_ds(data):
+    for row in data:
+        add('analysis', make_analysis_payload(row))
+        # print(row)
+        # print(make_analysis_payload(row))
+        # requests.post(f"http://{HOST}:{PORT}/api/v1/analysis/add", json=make_analysis_payload(row))
+
+
+def add(endpoint, payload):
+    return requests.post(f"http://{HOST}:{PORT}/api/v1/{endpoint}/add", json=payload)
 
 
 def make_project_payload(row):
@@ -89,13 +191,57 @@ def make_sample_payload(row):
         "project": row["Project"],
         "latitude": row["Latitude"],
         "longitude": row["Longitude"],
+        "properties": {"age": {'value': row["age"], 'error': row["age_err"], 'units': 'Ma'},
+                       "kca": {'value': row["kca"], 'error': row["kca_err"], 'units': ''}}
     }
+
+
+def make_analysis_payload(row):
+    cak = ufloat(row.get("Ca_Over_K", 1),
+                 row.get("Ca_Over_K_Er", 1))
+    kca = 1 / cak
+
+    runtime = row['Run_Hour']
+    runtime = dtime(hour=int(runtime), minute=int(runtime % 1 * 60))
+    rundate = row['Run_Date']
+    dt = datetime.combine(rundate, runtime).isoformat()
+
+    return {"is_bad": row.get("tag", "ok").lower() == "invalid",
+            'analysis_type': 'Fusion',
+            'sample_slug': row['Sample'],
+            'slug': row['Run_ID'],
+            'name': row['Run_ID'],
+            'timestamp': dt,
+            'properties':
+                {'age': {'value': row.get("Age", 0),
+                         'error': row.get("Age_Er", 0),
+                         'units': 'Ma'},
+                 'kca': {'value': nominal_value(kca),
+                         'error': std_dev(kca),
+                         'units': ''},
+                 'j': {'value': row.get("J", 0),
+                       'error': row.get("J_Er", 0),
+                       'units': ''}}
+            }
 
 
 def etl():
     load(transform(extract()))
 
 
+def etl_ds():
+    # transform_ds(extract_ds())
+    load(transform_ds(extract_ds()))
+
+
+def etl_analyses_ds():
+    # list(transform_analyses_ds(extract_ds_analyses()))
+    # load_ds_samples(transform_samples_ds(extract_ds_analyses()))
+    load_ds(transform_analyses_ds(extract_ds_analyses()))
+
+
 if __name__ == "__main__":
-    etl()
+    # etl()
+    # etl_ds()
+    etl_analyses_ds()
 # ============= EOF =============================================

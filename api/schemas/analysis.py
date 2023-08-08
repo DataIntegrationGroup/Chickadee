@@ -15,7 +15,7 @@
 # ===============================================================================
 from datetime import datetime
 
-from pydantic import Extra
+from pydantic import Extra, Field
 
 from . import NamedModel, ORMBaseModel
 
@@ -37,7 +37,7 @@ class CreateAnalysis(ORMBaseModel):
     sample_slug: str
     timestamp: datetime
     is_bad: bool = False
-    properties: dict = None
+    properties: dict = Field(default_factory=dict)
 
 
 class AnalysisProperty(ORMBaseModel):
