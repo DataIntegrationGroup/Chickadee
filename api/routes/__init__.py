@@ -159,7 +159,6 @@ def root_query(name: str, db, table):
     return q.all()
 
 
-
 def make_properties(properties, table):
     props = []
     for k, v in properties.items():
@@ -184,6 +183,8 @@ def make_properties(properties, table):
         props.append(prop)
 
     return props
+
+
 #
 # def property_query(q, query, table):
 #     f = None

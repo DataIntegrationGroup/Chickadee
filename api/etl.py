@@ -70,23 +70,23 @@ def extract_ds():
 
 def transform_ds(data):
     for row in data:
-        row['Material'] = row['min']
-        row['Project'] = 'SanJuan Volcanic Field'
-        row['Latitude'] = row.get('Latitude', 35)
-        row['Longitude'] = row.get('Latitude', -106)
+        row["Material"] = row["min"]
+        row["Project"] = "SanJuan Volcanic Field"
+        row["Latitude"] = row.get("Latitude", 35)
+        row["Longitude"] = row.get("Latitude", -106)
         yield row
 
 
 def transform_analyses_ds(data):
     for row in data:
-        if isnull(row['Sample']):
+        if isnull(row["Sample"]):
             break
         yield row
 
 
 def transform_samples_ds(data):
     for row in data:
-        if isnull(row['Sample']):
+        if isnull(row["Sample"]):
             break
         yield row
 
@@ -135,18 +135,23 @@ def load(data):
 
 def load_ds_samples(data):
     def key(d):
-        return d['Sample']
+        return d["Sample"]
 
     # data = [di for di in data if not isnull(di['Sample'])]
     for sample, gs in groupby(sorted(data, key=key), key=key):
-        add('material', {'name': 'Sanidine'})
-        add('project', {'name': 'DS'})
-        add('sample', {'name': sample,
-                       'material': 'Sanidine',
-                       'project': 'DS',
-                       'properties': {},
-                       'latitude': 35,
-                       'longitude': -106})
+        add("material", {"name": "Sanidine"})
+        add("project", {"name": "DS"})
+        add(
+            "sample",
+            {
+                "name": sample,
+                "material": "Sanidine",
+                "project": "DS",
+                "properties": {},
+                "latitude": 35,
+                "longitude": -106,
+            },
+        )
 
         # requests.post(
         #     f"http://{HOST}:{PORT}/api/v1/material/add", json={'name': 'Sanidine'}
@@ -166,7 +171,7 @@ def load_ds_samples(data):
 
 def load_ds(data):
     for row in data:
-        add('analysis', make_analysis_payload(row))
+        add("analysis", make_analysis_payload(row))
         # print(row)
         # print(make_analysis_payload(row))
         # requests.post(f"http://{HOST}:{PORT}/api/v1/analysis/add", json=make_analysis_payload(row))
@@ -191,38 +196,39 @@ def make_sample_payload(row):
         "project": row["Project"],
         "latitude": row["Latitude"],
         "longitude": row["Longitude"],
-        "properties": {"age": {'value': row["age"], 'error': row["age_err"], 'units': 'Ma'},
-                       "kca": {'value': row["kca"], 'error': row["kca_err"], 'units': ''}}
+        "properties": {
+            "age": {"value": row["age"], "error": row["age_err"], "units": "Ma"},
+            "kca": {"value": row["kca"], "error": row["kca_err"], "units": ""},
+        },
     }
 
 
 def make_analysis_payload(row):
-    cak = ufloat(row.get("Ca_Over_K", 1),
-                 row.get("Ca_Over_K_Er", 1))
+    cak = ufloat(row.get("Ca_Over_K", 1), row.get("Ca_Over_K_Er", 1))
     kca = 1 / cak
 
-    runtime = row['Run_Hour']
+    runtime = row["Run_Hour"]
     runtime = dtime(hour=int(runtime), minute=int(runtime % 1 * 60))
-    rundate = row['Run_Date']
+    rundate = row["Run_Date"]
     dt = datetime.combine(rundate, runtime).isoformat()
 
-    return {"is_bad": row.get("tag", "ok").lower() == "invalid",
-            'analysis_type': 'Fusion',
-            'sample_slug': row['Sample'],
-            'slug': row['Run_ID'],
-            'name': row['Run_ID'],
-            'timestamp': dt,
-            'properties':
-                {'age': {'value': row.get("Age", 0),
-                         'error': row.get("Age_Er", 0),
-                         'units': 'Ma'},
-                 'kca': {'value': nominal_value(kca),
-                         'error': std_dev(kca),
-                         'units': ''},
-                 'j': {'value': row.get("J", 0),
-                       'error': row.get("J_Er", 0),
-                       'units': ''}}
-            }
+    return {
+        "is_bad": row.get("tag", "ok").lower() == "invalid",
+        "analysis_type": "Fusion",
+        "sample_slug": row["Sample"],
+        "slug": row["Run_ID"],
+        "name": row["Run_ID"],
+        "timestamp": dt,
+        "properties": {
+            "age": {
+                "value": row.get("Age", 0),
+                "error": row.get("Age_Er", 0),
+                "units": "Ma",
+            },
+            "kca": {"value": nominal_value(kca), "error": std_dev(kca), "units": ""},
+            "j": {"value": row.get("J", 0), "error": row.get("J_Er", 0), "units": ""},
+        },
+    }
 
 
 def etl():

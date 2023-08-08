@@ -173,7 +173,7 @@ get_analyses()
 
 @router.get("/source_match")
 async def match_to_source(
-        age: str = None, kca: str = None, db: Session = Depends(get_db)
+    age: str = None, kca: str = None, db: Session = Depends(get_db)
 ):
     if age:
         age, age_error = [float(a) for a in age.split(",")]
@@ -325,5 +325,6 @@ async def match_to_source(
         },
         "sink": {"age": age, "kca": kca},
     }
+
 
 # ============= EOF =============================================
