@@ -26,7 +26,7 @@ from app import app
 from constants import API_PREFIX
 from pathlib import Path
 
-if int(os.environ.get('CHICKADEE_ERASE_AND_REBUILD_DB', 0)):
+if int(os.environ.get("CHICKADEE_ERASE_AND_REBUILD_DB", 0)):
     from database import engine
     from models import sample, project, analysis, Base
 
