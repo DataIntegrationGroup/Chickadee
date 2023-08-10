@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ===============================================================================
+import os
 from datetime import datetime
 
 from fastapi import Depends
@@ -23,13 +24,14 @@ from starlette.templating import Jinja2Templates
 
 from app import app
 from constants import API_PREFIX
+from pathlib import Path
 
-from database import engine
-from dependencies import get_db
-from models import sample, project, analysis, Base
+if int(os.environ.get('CHICKADEE_ERASE_AND_REBUILD_DB', 0)):
+    from database import engine
+    from models import sample, project, analysis, Base
 
-# Base.metadata.drop_all(bind=engine)
-# Base.metadata.create_all(bind=engine)
+    Base.metadata.drop_all(bind=engine)
+    Base.metadata.create_all(bind=engine)
 
 
 from routes import sample, project, analysis, material
@@ -39,7 +41,6 @@ app.include_router(project.router)
 app.include_router(analysis.router)
 app.include_router(material.router)
 
-from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent
 templates = Jinja2Templates(directory=str(Path(BASE_DIR, "templates")))
@@ -52,7 +53,7 @@ def mapboxtoken():
     }
 
 
-@app.get("/map", response_class=HTMLResponse)
+@app.get("/", response_class=HTMLResponse)
 def map_view(request: Request):
     return templates.TemplateResponse(
         "map_view.html",

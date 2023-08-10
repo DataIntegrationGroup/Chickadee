@@ -5,6 +5,15 @@
 {% endblock %}
 
 {% block content %}
+
+    <!-- front matters -->
+    <div style="text-align: center">
+        <h1>Welcome to Chickadee</h1>
+        <h2>New Mexico Geochronology Research Laboratory's Public Age Database</h2>
+    </div>
+
+
+
     {% include "map_include.html" %}
     <script>
         const tokenurl = window.location.origin+'/mapboxtoken'
@@ -16,25 +25,5 @@
             });
 
     </script>
-
 {% endblock %}
-
-
-
-
-
-{##}
-{#<!DOCTYPE html>#}
-{#<html lang="en">#}
-{#<head>#}
-{#    <meta charset="utf-8">#}
-{#    <title>Display a map on a webpage</title>#}
-{#    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">#}
-{#    <link href="https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.css" rel="stylesheet">#}
-{#    <script src="https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.js"></script>#}
-{#    <style>#}
-{#        body { margin: 0; padding: 0; }#}
-{#        #map { position: absolute; top: 0; bottom: 0; width: 100%; }#}
-{#    </style>#}
-{#</head>#}
 
