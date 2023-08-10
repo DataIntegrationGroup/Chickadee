@@ -121,8 +121,8 @@ def source_matcher(age, kca):
 
     xmin = age * 0.95
     xmax = age * 1.05
-    ymin = kca * 0.75
-    ymax = kca * 1.25
+    # ymin = kca * 0.75
+    # ymax = kca * 1.25
 
     # q = Query(db, MSample)
     # samples = q.all()
@@ -145,6 +145,9 @@ def source_matcher(age, kca):
     idx = [xmin <= a <= xmax for a in ages]
     ages = ages[idx]
     kcas = array(kcas)[idx]
+
+    ymin = min(kcas)
+    ymax = max(kcas)
 
     x = column_stack((ages, kcas))
     ynames = array([a.analysis.sample_slug for a in ans if a.slug == "age"])
@@ -213,10 +216,10 @@ def source_matcher(age, kca):
             # plt.colorbar(handle, orientation="horizontal")
             plt.show()
 
-    ages = [
+    source_ages = [
         a.value for a in ans if a.slug == "age" and a.analysis.sample_slug == pklass
     ]
-    kcas = [
+    source_kcas = [
         a.value for a in ans if a.slug == "kca" and a.analysis.sample_slug == pklass
     ]
     # print(mean(ages), std(ages), mean(kcas), std(kcas))
@@ -249,22 +252,24 @@ def source_matcher(age, kca):
     #     plt.plot(x, ccdf/max(ccdf))
     #     plt.plot(x, norm(loc=age, scale=age_error).pdf(x))
     #     plt.show()
-    mage = mean(ages)
-    mkca = mean(kcas)
-    age_zscore = (age - mage) / std(ages)
-    kca_zscore = (kca - mkca) / std(kcas)
+    mage = mean(source_ages)
+    mkca = mean(source_kcas)
+    age_zscore = (age - mage) / std(source_ages)
+    kca_zscore = (kca - mkca) / std(source_kcas)
     return {
         "source": {
             "name": pklass,
             "mean_age": mage,
             "mean_kca": mkca,
+            "ages": source_ages,
+            "kcas": source_kcas,
             "probability_score": score,
             "age_zscore": age_zscore,
             "kca_zscore": kca_zscore,
         },
         "sink": {"age": age, "kca": kca},
-        "ages": ages,
-        "kcas": kcas,
+        "ages": ages.tolist(),
+        "kcas": kcas.tolist(),
         "full_probability": probas[:, k].reshape((nstep, nstep)).tolist(),
         "pxs": lxx.tolist(),
         "pys": lyy.tolist(),
