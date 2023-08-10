@@ -19,7 +19,10 @@ from . import NamedModel
 
 
 class Sample(NamedModel):
-    pass
+    project_slug: str
+    material_slug: str
+    latitude: float
+    longitude: float
 
 
 class CreateSample(NamedModel):

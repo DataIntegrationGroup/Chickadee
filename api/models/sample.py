@@ -34,6 +34,14 @@ class Sample(Base, SlugMixin, EmbargoMixin):
         point = to_shape(self.location)
         return {"coordinates": [float(point.x), float(point.y)], "type": "Point"}
 
+    @property
+    def latitude(self):
+        return to_shape(self.location).y
+
+    @property
+    def longitude(self):
+        return to_shape(self.location).x
+
 
 class Material(Base, SlugMixin):
     __tablename__ = "materialtbl"
