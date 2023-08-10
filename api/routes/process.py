@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ===============================================================================
+from itertools import groupby
 from operator import or_
 
 from constants import API_PREFIX, API_VERSION
@@ -108,7 +109,7 @@ get_analyses()
 
 @router.get("/source_match")
 async def match_to_source(
-    age: str = None, kca: str = None, db: Session = Depends(get_db)
+        age: str = None, kca: str = None, db: Session = Depends(get_db)
 ):
     return source_matcher(age, kca)
 
@@ -168,6 +169,19 @@ def source_matcher(age, kca):
     if PLOT:
         plt.scatter(ages, kcas, c=y, edgecolors="k", cmap="jet")
         plt.plot([age], [kca], "ro")
+
+    data = column_stack((ages, kcas, y))
+
+    def key(i):
+        return i[2]
+
+    min_dis = 1e10
+    best_klass = None
+    for klass, items in groupby(sorted(data, key=key), key=key):
+        dis = mean([((age - a) ** 2 + (kca - k) ** 2) ** 0.5 for a, k, y in items])
+        if dis < min_dis:
+            min_dis = dis
+            best_klass = ys[int(klass)]
 
     nstep = 100
     lxx = linspace(xmin, xmax, nstep)
@@ -273,7 +287,7 @@ def source_matcher(age, kca):
         "full_probability": probas[:, k].reshape((nstep, nstep)).tolist(),
         "pxs": lxx.tolist(),
         "pys": lyy.tolist(),
+        "best_klass": best_klass,
     }
-
 
 # ============= EOF =============================================
