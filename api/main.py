@@ -55,36 +55,49 @@ def mapboxtoken():
     }
 
 
-@app.get('/source_sink', response_class=HTMLResponse)
+@app.get("/source_sink", response_class=HTMLResponse)
 def source_sink(request: Request, age: str = None, kca: str = None):
     match = None
     graphjson = None
     if age and kca:
         from routes.process import source_matcher
+
         match = source_matcher(age, kca)
     else:
-        age = 'Age'
-        kca = 'K/Ca'
+        age = "Age"
+        kca = "K/Ca"
 
     if match:
         import plotly.graph_objects as go
-        fig = go.Figure()
-        xs = match.pop('ages')
-        ys = match.pop('kcas')
-        full_probability = match.pop('full_probability')
-        pxs = match.pop('pxs')
-        pys = match.pop('pys')
 
-        nage, _ = age.split(',')
-        nkca, _ = kca.split(',')
+        fig = go.Figure()
+        xs = match.pop("ages")
+        ys = match.pop("kcas")
+        full_probability = match.pop("full_probability")
+        pxs = match.pop("pxs")
+        pys = match.pop("pys")
+
+        nage, _ = age.split(",")
+        nkca, _ = kca.split(",")
 
         fig.add_trace(go.Scatter(x=xs, y=ys, mode="markers", name="TestPlot"))
-        fig.add_trace(go.Scatter(x=[nage], y=[nkca], mode="markers",
-                                 marker_size=10,
-                                 marker_symbol='square',
-                                 name="Sink"))
-        fig.add_trace(go.Contour(z=fliplr(flipud(array(full_probability))), x=pxs, y=pys,
-                                 ))
+        fig.add_trace(
+            go.Scatter(
+                x=[nage],
+                y=[nkca],
+                mode="markers",
+                marker_size=10,
+                marker_symbol="square",
+                name="Sink",
+            )
+        )
+        fig.add_trace(
+            go.Contour(
+                z=fliplr(flipud(array(full_probability))),
+                x=pxs,
+                y=pys,
+            )
+        )
         graphjson = fig.to_json()
 
     return templates.TemplateResponse(
@@ -94,7 +107,7 @@ def source_sink(request: Request, age: str = None, kca: str = None):
             "age": age,
             "kca": kca,
             "match": match,
-            "graphJSON": graphjson
+            "graphJSON": graphjson,
         },
     )
 
