@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block head %}
+{{ super() }}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/default.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.9/beautify.min.js"></script>
+
+<!-- and it's easy to individually load additional languages -->
+<!--<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/go.min.js"></script>-->
+<script>hljs.highlightAll();</script>
+
+{% endblock %}
+
+{% block content %}
+
+<div>
+    <h2>Projects</h2>
+    <table id="projectstable" class="display compact">
+        <thead>
+            <tr>
+                <th>Project Name</th>
+            </tr>
+        </thead>
+    </table>
+</div>
+<div>
+    <h2>Samples</h2>
+    <table id="samplestable" class="display compact">
+        <thead>
+            <tr>
+                <th>Sample Name</th>
+            </tr>
+        </thead>
+    </table>
+</div>
+
+<script>
+    const pcolumns = [
+        { data: 'name'},
+    ]
+
+    $('#samplestable').DataTable({
+        // ordering: false,
+        // searching: false,
+        // paging: false,
+        // info: false,
+        columns: pcolumns,
+        ajax: {
+            url: '/api/v1/sample',
+            dataSrc: ''
+        }});
+
+    $('#projectstable').DataTable({
+        ordering: false,
+        // searching: false,
+        // paging: false,
+        // info: false,
+        columns: pcolumns,
+        ajax: {
+            url: '/api/v1/project',
+            dataSrc: ''
+        }});
+
+</script>
+<!--<div>-->
+<!--    <table id="projectstable" class="display compact"></table>-->
+<!--</div>-->
+
+{% endblock %}
+
+{% block footer %}
+{% endblock %}

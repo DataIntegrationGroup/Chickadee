@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block head %}
+{{ super() }}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/default.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.9/beautify.min.js"></script>
+<!-- and it's easy to individually load additional languages -->
+<!--<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/go.min.js"></script>-->
+<script>hljs.highlightAll();</script>
+
+<script src='https://cdn.plot.ly/plotly-latest.min.js'></script>
+
+{% endblock %}
+
+{% block content %}
+
+    <form>
+        <input type="text" name="age" placeholder={{ age }} value={{ age }}>
+        <input type="text" name="kca" placeholder={{ kca }} value={{ kca }}>
+        <input type="submit" value="Submit">
+    </form>
+
+    {% if match %}
+        <div class="row">
+            <div class="col-6">
+                <pre>
+                    <code id="matchcontent" class="language-json"></code>
+                </pre>
+            </div>
+            <div class="col-6">
+                <div id="chart"></div>
+            </div>
+        </div>
+
+
+
+        <script>
+            document.getElementById("matchcontent").innerHTML = js_beautify(JSON.stringify({{ match|tojson }} ));
+            console.log({{ graphJSON|tojson }});
+            Plotly.plot('chart', {{ graphJSON | safe }}, {});
+        </script>
+
+    {% endif %}
+
+
+{% endblock %}
+
+{% block footer %}
+{% endblock %}

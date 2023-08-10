@@ -9,4 +9,7 @@ jinja2
 pandas
 openpyxl
 uncertainties
+jsbeautifier
+plotly
+
 
