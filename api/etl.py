@@ -96,10 +96,14 @@ def transform(data):
         if not test(row["Include Sparrow"]):
             continue
 
-
         # if not test(row['Complete']):
         #     continue
-        for k, ki in (('age', 'Assigned Age'), ('age_err', 'Assigned Age Error'), ('kca', 'K/Ca'), ('kca_err', 'K/Ca Error')):
+        for k, ki in (
+            ("age", "Assigned Age"),
+            ("age_err", "Assigned Age Error"),
+            ("kca", "K/Ca"),
+            ("kca_err", "K/Ca Error"),
+        ):
             v = row[ki].strip()
             try:
                 row[k] = float(v)
@@ -122,7 +126,7 @@ def transform(data):
             lon, lat = utm_to_latlon(e, n, zone=zone, datum=datum)
             row["Latitude"] = lat
             row["Longitude"] = lon
-        print('yiea', row)
+        print("yiea", row)
         yield row
 
 
@@ -130,15 +134,23 @@ def load(data):
     # host = "129.138.12.35"
 
     for row in data:
-        print(requests.post(
-            f"http://{HOST}:{PORT}/api/v1/material/add", json=make_material_payload(row)
-        ))
-        print(requests.post(
-            f"http://{HOST}:{PORT}/api/v1/project/add", json=make_project_payload(row)
-        ))
-        print(requests.post(
-            f"http://{HOST}:{PORT}/api/v1/sample/add", json=make_sample_payload(row)
-        ))
+        print(
+            requests.post(
+                f"http://{HOST}:{PORT}/api/v1/material/add",
+                json=make_material_payload(row),
+            )
+        )
+        print(
+            requests.post(
+                f"http://{HOST}:{PORT}/api/v1/project/add",
+                json=make_project_payload(row),
+            )
+        )
+        print(
+            requests.post(
+                f"http://{HOST}:{PORT}/api/v1/sample/add", json=make_sample_payload(row)
+            )
+        )
 
 
 def load_ds_samples(data):
@@ -206,8 +218,16 @@ def make_sample_payload(row):
         "latitude": row["Latitude"],
         "longitude": row["Longitude"],
         "properties": {
-            "age": {"value": row["age"] or 0, "error": row["age_err"] or 0, "units": "Ma"},
-            "kca": {"value": row["kca"] or 0, "error": row["kca_err"] or 0, "units": ""},
+            "age": {
+                "value": row["age"] or 0,
+                "error": row["age_err"] or 0,
+                "units": "Ma",
+            },
+            "kca": {
+                "value": row["kca"] or 0,
+                "error": row["kca_err"] or 0,
+                "units": "",
+            },
         },
     }
 

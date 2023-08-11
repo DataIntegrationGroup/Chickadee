@@ -109,7 +109,7 @@ get_analyses()
 
 @router.get("/source_match")
 async def match_to_source(
-        age: str = None, kca: str = None, db: Session = Depends(get_db)
+    age: str = None, kca: str = None, db: Session = Depends(get_db)
 ):
     return source_matcher(age, kca)
 
@@ -177,7 +177,12 @@ def source_matcher(age, kca):
     for klass, items in groupby(sorted(data, key=key), key=key):
         items = list(items)
 
-        dis = mean([(((age - a)/age) ** 2 + ((kca - k)/kca) ** 2) ** 0.5 for a, k, y in items])
+        dis = mean(
+            [
+                (((age - a) / age) ** 2 + ((kca - k) / kca) ** 2) ** 0.5
+                for a, k, y in items
+            ]
+        )
         distances[ys[int(klass)]] = dis
 
         if dis < min_dis:
@@ -211,7 +216,7 @@ def source_matcher(age, kca):
         probas = zeros((nstep, nstep))
         df = zeros((nstep, nstep))
     else:
-        clf.fit(x, y, classifier__sample_weight=1 / (aes ** 2 + kes ** 2))
+        clf.fit(x, y, classifier__sample_weight=1 / (aes**2 + kes**2))
 
         probs = clf.predict_proba([[age, kca]])[0]
 
@@ -249,8 +254,12 @@ def source_matcher(age, kca):
         a.value for a in ans if a.slug == "kca" and a.analysis.sample_slug == pklass
     ]
 
-    bxs = [a.value for a in ans if a.slug == "age" and a.analysis.sample_slug == best_klass]
-    bys = [a.value for a in ans if a.slug == "kca" and a.analysis.sample_slug == best_klass]
+    bxs = [
+        a.value for a in ans if a.slug == "age" and a.analysis.sample_slug == best_klass
+    ]
+    bys = [
+        a.value for a in ans if a.slug == "kca" and a.analysis.sample_slug == best_klass
+    ]
 
     # print(mean(ages), std(ages), mean(kcas), std(kcas))
 
@@ -309,9 +318,9 @@ def source_matcher(age, kca):
             "name": best_klass,
             "ages": bxs,
             "kcas": bys,
-            "distances": distances
-
-        }
+            "distances": distances,
+        },
     }
+
 
 # ============= EOF =============================================

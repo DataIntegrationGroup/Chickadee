@@ -84,8 +84,8 @@ def source_sink(request: Request, age: str = None, kca: str = None):
         pxs = match.pop("pxs")
         pys = match.pop("pys")
 
-        bxs = match['mean_closest'].pop('ages')
-        bys = match['mean_closest'].pop('kcas')
+        bxs = match["mean_closest"].pop("ages")
+        bys = match["mean_closest"].pop("kcas")
         # bxs = match.pop("mean_closest_xs")
         # bys = match.pop("mean_closest_ys")
 
