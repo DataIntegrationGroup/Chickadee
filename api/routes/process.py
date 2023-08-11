@@ -175,7 +175,7 @@ def source_matcher(age, kca):
 
         dis = mean(
             [
-                ((10*(age - a) / age) ** 2 + ((kca - k) / kca) ** 2) ** 0.5
+                ((10 * (age - a) / age) ** 2 + ((kca - k) / kca) ** 2) ** 0.5
                 for a, k, y in items
             ]
         )
