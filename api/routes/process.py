@@ -125,7 +125,7 @@ def source_matcher(age, kca):
             kca, kca_error = [float(a) for a in kca.split(",")]
         else:
             kca, kca_error = float(kca), 0.0
-    print(age, kca, type(age), type(kca))
+
     xmin = age * 0.95
     xmax = age * 1.05
 
@@ -151,22 +151,18 @@ def source_matcher(age, kca):
     ynames = ynames[idx]
 
     nys = []
-    ys = []
+    ylabels = []
     i = 0
     for yi in ynames:
-        if yi in ys:
-            nys.append(ys.index(yi))
+        if yi in ylabels:
+            nys.append(ylabels.index(yi))
         else:
-            ys.append(yi)
+            ylabels.append(yi)
             nys.append(i)
             i += 1
 
-    y = nys
-    if PLOT:
-        plt.scatter(ages, kcas, c=y, edgecolors="k", cmap="jet")
-        plt.plot([age], [kca], "ro")
-
-    data = column_stack((ages, kcas, y))
+    # y = nys
+    data = column_stack((ages, kcas, nys))
 
     def key(i):
         return i[2]
@@ -179,73 +175,51 @@ def source_matcher(age, kca):
 
         dis = mean(
             [
-                (((age - a) / age) ** 2 + ((kca - k) / kca) ** 2) ** 0.5
+                ((10*(age - a) / age) ** 2 + ((kca - k) / kca) ** 2) ** 0.5
                 for a, k, y in items
             ]
         )
-        distances[ys[int(klass)]] = dis
+        distances[ylabels[int(klass)]] = dis
 
         if dis < min_dis:
             min_dis = dis
             best_klass_idx = int(klass)
-            best_klass = ys[best_klass_idx]
+            best_klass = ylabels[best_klass_idx]
 
     nstep = 100
     lxx = linspace(xmin, xmax, nstep)
     lyy = linspace(ymin, ymax, nstep)
     xx, yy = meshgrid(lxx, lyy)
     Xfull = c_[xx.ravel(), yy.ravel()]
-    # x = array([[-1, -1], [-2, -1], [1, 1], [2, 1]])
-    # y = array([1, 1, 2, 2])
-    # clf = make_pipeline(StandardScaler(), svm.SVC(gamma='auto'))
-    # clf.fit(X, y)
-    # print(x, y)
-    # clf = make_pipeline(StandardScaler(), svm.SVC(gamma=2, C=1, probability=True))
-    # clf = make_pipeline(StandardScaler(), ('classifier', svm.SVC(gamma=1, probability=True)))
-    # clf = make_pipeline(StandardScaler(), KNeighborsClassifier(3))
+
     clf = Pipeline(
         [
             ("scaler", StandardScaler()),
             ("classifier", svm.SVC(gamma=1, probability=True)),
         ]
     )
-    if unique(y).size == 1:
-        prediction = y[0]
-        pklass = ys[prediction]
+    if unique(nys).size == 1:
+        prediction = nys[0]
+        pklass = ylabels[prediction]
         score = -1
         probas = zeros((nstep, nstep))
         df = zeros((nstep, nstep))
     else:
-        clf.fit(x, y, classifier__sample_weight=1 / (aes**2 + kes**2))
+        clf.fit(x, nys, classifier__sample_weight=1 / (aes**2 + kes**2))
 
         probs = clf.predict_proba([[age, kca]])[0]
 
         prediction = clf.predict([[age, kca]])
         k = prediction[0]
 
-        pklass = ys[k]
+        pklass = ylabels[k]
         score = probs[k]
-        # print(prediction, pklass)
-        # print(probs[k], max(probas[:, k]))
 
         probas = clf.predict_proba(Xfull)
         probas = probas[:, k].reshape((nstep, nstep))
 
         df = clf.decision_function(Xfull)
         df = df[:, k].reshape((nstep, nstep))
-        # ypred = clf.predict(x)
-        idx = y == k
-        if PLOT:
-            plt.scatter(x[idx, 0], x[idx, 1], marker="+")
-            handle = plt.imshow(
-                probas,
-                # probas[:, k].reshape((nstep, nstep)),
-                extent=(xmin, xmax, ymin, ymax),
-                origin="lower",
-            )
-            # ax = plt.axes([0.15, 0.04, 0.7, 0.05])
-            # plt.colorbar(handle, orientation="horizontal")
-            plt.show()
 
     source_ages = [
         a.value for a in ans if a.slug == "age" and a.analysis.sample_slug == pklass

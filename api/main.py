@@ -73,6 +73,15 @@ def source_sink(request: Request, age: str = None, kca: str = None):
         import plotly.graph_objects as go
 
         fig = go.Figure()
+        fig.layout.margin = {"l": 80, "r": 85, "t": 70, "b": 0}
+
+        fig.layout.xaxis.title = "Age (Ma)"
+        fig.layout.yaxis.title = "K/Ca"
+        fig.layout.title = {'text': "Probability Density",
+                            'y': 0.9,
+                            'x': 0.5,
+                            'xanchor': 'center',
+                            'yanchor': 'top'}
 
         sxs = match["source"].pop("ages")
         sys = match["source"].pop("kcas")
@@ -116,6 +125,15 @@ def source_sink(request: Request, age: str = None, kca: str = None):
         graphjson = fig.to_json()
 
         fig = go.Figure()
+        fig.layout.xaxis.title = "Age (Ma)"
+        fig.layout.yaxis.title = "K/Ca"
+        fig.layout.margin = {"l": 80, "r": 0, "t": 70, "b": 0}
+        fig.layout.title = {'text': "Decision Function",
+                            'y': 0.9,
+                            'x': 0.5,
+                            'xanchor': 'center',
+                            'yanchor': 'top'}
+
         fig.add_trace(go.Scatter(x=xs, y=ys, mode="markers"))
         fig.add_trace(go.Scatter(x=sxs, y=sys, mode="markers"))
         fig.add_trace(go.Contour(z=array(decision_function), x=pxs, y=pys))
