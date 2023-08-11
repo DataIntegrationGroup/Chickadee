@@ -47,7 +47,7 @@ class PropertyMixin:
 
     @declared_attr
     def value(self):
-        return Column(Float, nullable=False)
+        return Column(Float, nullable=True)
 
     @declared_attr
     def error(self):

@@ -109,7 +109,7 @@ get_analyses()
 
 @router.get("/source_match")
 async def match_to_source(
-    age: str = None, kca: str = None, db: Session = Depends(get_db)
+        age: str = None, kca: str = None, db: Session = Depends(get_db)
 ):
     return source_matcher(age, kca)
 
@@ -125,7 +125,7 @@ def source_matcher(age, kca):
             kca, kca_error = [float(a) for a in kca.split(",")]
         else:
             kca, kca_error = float(kca), 0.0
-
+    print(age, kca, type(age), type(kca))
     xmin = age * 0.95
     xmax = age * 1.05
 
@@ -173,11 +173,17 @@ def source_matcher(age, kca):
 
     min_dis = 1e10
     best_klass = None
+    distances = {}
     for klass, items in groupby(sorted(data, key=key), key=key):
-        dis = mean([((age - a) ** 2 + (kca - k) ** 2) ** 0.5 for a, k, y in items])
+        items = list(items)
+
+        dis = mean([(((age - a)/age) ** 2 + ((kca - k)/kca) ** 2) ** 0.5 for a, k, y in items])
+        distances[ys[int(klass)]] = dis
+
         if dis < min_dis:
             min_dis = dis
-            best_klass = ys[int(klass)]
+            best_klass_idx = int(klass)
+            best_klass = ys[best_klass_idx]
 
     nstep = 100
     lxx = linspace(xmin, xmax, nstep)
@@ -205,7 +211,7 @@ def source_matcher(age, kca):
         probas = zeros((nstep, nstep))
         df = zeros((nstep, nstep))
     else:
-        clf.fit(x, y, classifier__sample_weight=1 / (aes**2 + kes**2))
+        clf.fit(x, y, classifier__sample_weight=1 / (aes ** 2 + kes ** 2))
 
         probs = clf.predict_proba([[age, kca]])[0]
 
@@ -242,6 +248,10 @@ def source_matcher(age, kca):
     source_kcas = [
         a.value for a in ans if a.slug == "kca" and a.analysis.sample_slug == pklass
     ]
+
+    bxs = [a.value for a in ans if a.slug == "age" and a.analysis.sample_slug == best_klass]
+    bys = [a.value for a in ans if a.slug == "kca" and a.analysis.sample_slug == best_klass]
+
     # print(mean(ages), std(ages), mean(kcas), std(kcas))
 
     # zscore = (age - mean(ages))/std(ages)
@@ -295,8 +305,13 @@ def source_matcher(age, kca):
         "decision_function": df.tolist(),
         "pxs": lxx.tolist(),
         "pys": lyy.tolist(),
-        "mean_closest_klass": best_klass,
-    }
+        "mean_closest": {
+            "name": best_klass,
+            "ages": bxs,
+            "kcas": bys,
+            "distances": distances
 
+        }
+    }
 
 # ============= EOF =============================================

@@ -84,12 +84,18 @@ def source_sink(request: Request, age: str = None, kca: str = None):
         pxs = match.pop("pxs")
         pys = match.pop("pys")
 
+        bxs = match['mean_closest'].pop('ages')
+        bys = match['mean_closest'].pop('kcas')
+        # bxs = match.pop("mean_closest_xs")
+        # bys = match.pop("mean_closest_ys")
+
         nage = match["sink"]["age"]
         nkca = match["sink"]["kca"]
         # nage, _ = age.split(",")
         # nkca, _ = kca.split(",")
 
         fig.add_trace(go.Scatter(x=xs, y=ys, mode="markers", name="TestPlot"))
+        fig.add_trace(go.Scatter(x=bxs, y=bys, mode="markers", name="Background"))
         fig.add_trace(
             go.Scatter(
                 x=[nage],

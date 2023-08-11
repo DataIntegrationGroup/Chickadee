@@ -73,7 +73,7 @@ def transform_ds(data):
         row["Material"] = row["min"]
         row["Project"] = "SanJuan Volcanic Field"
         row["Latitude"] = row.get("Latitude", 35)
-        row["Longitude"] = row.get("Latitude", -106)
+        row["Longitude"] = row.get("Longitude", -106)
         yield row
 
 
@@ -96,8 +96,15 @@ def transform(data):
         if not test(row["Include Sparrow"]):
             continue
 
+
         # if not test(row['Complete']):
         #     continue
+        for k, ki in (('age', 'Assigned Age'), ('age_err', 'Assigned Age Error'), ('kca', 'K/Ca'), ('kca_err', 'K/Ca Error')):
+            v = row[ki].strip()
+            try:
+                row[k] = float(v)
+            except ValueError:
+                row[k] = -1
 
         if not (row["Latitude"] and row["Longitude"]):
             e = row["Easting"]
@@ -112,9 +119,10 @@ def transform(data):
                 datum = datum.upper().replace(" ", "")
             if not zone:
                 zone = 13
-            lat, lon = utm_to_latlon(e, n, zone=zone, datum=datum)
+            lon, lat = utm_to_latlon(e, n, zone=zone, datum=datum)
             row["Latitude"] = lat
             row["Longitude"] = lon
+        print('yiea', row)
         yield row
 
 
@@ -122,15 +130,15 @@ def load(data):
     # host = "129.138.12.35"
 
     for row in data:
-        requests.post(
+        print(requests.post(
             f"http://{HOST}:{PORT}/api/v1/material/add", json=make_material_payload(row)
-        )
-        requests.post(
+        ))
+        print(requests.post(
             f"http://{HOST}:{PORT}/api/v1/project/add", json=make_project_payload(row)
-        )
-        requests.post(
+        ))
+        print(requests.post(
             f"http://{HOST}:{PORT}/api/v1/sample/add", json=make_sample_payload(row)
-        )
+        ))
 
 
 def load_ds_samples(data):
@@ -190,6 +198,7 @@ def make_material_payload(row):
 
 
 def make_sample_payload(row):
+    print(row)
     return {
         "name": row["Sample"],
         "material": row["Material"],
@@ -197,8 +206,8 @@ def make_sample_payload(row):
         "latitude": row["Latitude"],
         "longitude": row["Longitude"],
         "properties": {
-            "age": {"value": row["age"], "error": row["age_err"], "units": "Ma"},
-            "kca": {"value": row["kca"], "error": row["kca_err"], "units": ""},
+            "age": {"value": row["age"] or 0, "error": row["age_err"] or 0, "units": "Ma"},
+            "kca": {"value": row["kca"] or 0, "error": row["kca_err"] or 0, "units": ""},
         },
     }
 
