@@ -69,7 +69,6 @@ def source_sink(request: Request, age: str = None, kca: str = None):
         age = "Age"
         kca = "K/Ca"
 
-
     if match:
         import plotly.graph_objects as go
 
@@ -95,14 +94,15 @@ def source_sink(request: Request, age: str = None, kca: str = None):
             go.Scatter(
                 x=[nage],
                 y=[nkca],
-
                 mode="markers",
                 marker_size=10,
                 marker_symbol="square",
                 name="Sink",
             )
         )
-        fig.add_trace(go.Contour(z=array(full_probability), x=pxs, y=pys, coloraxis="coloraxis"))
+        fig.add_trace(
+            go.Contour(z=array(full_probability), x=pxs, y=pys, coloraxis="coloraxis")
+        )
         fig.add_trace(go.Scatter(x=sxs, y=sys, mode="markers"))
         # fig.update(layout_coloraxis_showscale=False)
         fig.update_coloraxes(showscale=False)
@@ -115,7 +115,6 @@ def source_sink(request: Request, age: str = None, kca: str = None):
         fig.add_trace(go.Contour(z=array(decision_function), x=pxs, y=pys))
         fig.update_layout(showlegend=False)
         graphjson_decision_function = fig.to_json()
-
 
     return templates.TemplateResponse(
         "source_sink.html",

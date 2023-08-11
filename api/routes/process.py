@@ -116,12 +116,12 @@ async def match_to_source(
 
 def source_matcher(age, kca):
     if age:
-        if ',' in age:
+        if "," in age:
             age, age_error = [float(a) for a in age.split(",")]
         else:
             age, age_error = float(age), 0.0
     if kca:
-        if ',' in kca:
+        if "," in kca:
             kca, kca_error = [float(a) for a in kca.split(",")]
         else:
             kca, kca_error = float(kca), 0.0
@@ -192,7 +192,12 @@ def source_matcher(age, kca):
     # clf = make_pipeline(StandardScaler(), svm.SVC(gamma=2, C=1, probability=True))
     # clf = make_pipeline(StandardScaler(), ('classifier', svm.SVC(gamma=1, probability=True)))
     # clf = make_pipeline(StandardScaler(), KNeighborsClassifier(3))
-    clf = Pipeline([("scaler", StandardScaler()), ("classifier", svm.SVC(gamma=1, probability=True))])
+    clf = Pipeline(
+        [
+            ("scaler", StandardScaler()),
+            ("classifier", svm.SVC(gamma=1, probability=True)),
+        ]
+    )
     if unique(y).size == 1:
         prediction = y[0]
         pklass = ys[prediction]
@@ -200,7 +205,7 @@ def source_matcher(age, kca):
         probas = zeros((nstep, nstep))
         df = zeros((nstep, nstep))
     else:
-        clf.fit(x, y, classifier__sample_weight=1 / (aes ** 2 + kes ** 2))
+        clf.fit(x, y, classifier__sample_weight=1 / (aes**2 + kes**2))
 
         probs = clf.predict_proba([[age, kca]])[0]
 
@@ -216,7 +221,7 @@ def source_matcher(age, kca):
         probas = probas[:, k].reshape((nstep, nstep))
 
         df = clf.decision_function(Xfull)
-        df = df[:,k].reshape((nstep, nstep))
+        df = df[:, k].reshape((nstep, nstep))
         # ypred = clf.predict(x)
         idx = y == k
         if PLOT:
@@ -287,7 +292,7 @@ def source_matcher(age, kca):
         "ages": ages.tolist(),
         "kcas": kcas.tolist(),
         "full_probability": probas.tolist(),
-        'decision_function': df.tolist(),
+        "decision_function": df.tolist(),
         "pxs": lxx.tolist(),
         "pys": lyy.tolist(),
         "mean_closest_klass": best_klass,
