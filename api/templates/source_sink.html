@@ -29,15 +29,18 @@
             </div>
             <div class="col-6">
                 <div id="chart"></div>
+                <div id="chart_decision_function"></div>
             </div>
+
         </div>
 
 
 
         <script>
             document.getElementById("matchcontent").innerHTML = js_beautify(JSON.stringify({{ match|tojson }} ));
-            console.log({{ graphJSON|tojson }});
             Plotly.plot('chart', {{ graphJSON | safe }}, {});
+            Plotly.plot('chart_decision_function', {{ graphJSON_decision_function | safe }}, {});
+
         </script>
 
     {% endif %}

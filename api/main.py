@@ -59,6 +59,8 @@ def mapboxtoken():
 def source_sink(request: Request, age: str = None, kca: str = None):
     match = None
     graphjson = None
+    graphjson_decision_function = None
+
     if age and kca:
         from routes.process import source_matcher
 
@@ -66,6 +68,7 @@ def source_sink(request: Request, age: str = None, kca: str = None):
     else:
         age = "Age"
         kca = "K/Ca"
+
 
     if match:
         import plotly.graph_objects as go
@@ -78,26 +81,41 @@ def source_sink(request: Request, age: str = None, kca: str = None):
         xs = match.pop("ages")
         ys = match.pop("kcas")
         full_probability = match.pop("full_probability")
+        decision_function = match.pop("decision_function")
         pxs = match.pop("pxs")
         pys = match.pop("pys")
 
-        nage, _ = age.split(",")
-        nkca, _ = kca.split(",")
+        nage = match["sink"]["age"]
+        nkca = match["sink"]["kca"]
+        # nage, _ = age.split(",")
+        # nkca, _ = kca.split(",")
 
         fig.add_trace(go.Scatter(x=xs, y=ys, mode="markers", name="TestPlot"))
         fig.add_trace(
             go.Scatter(
                 x=[nage],
                 y=[nkca],
+
                 mode="markers",
                 marker_size=10,
                 marker_symbol="square",
                 name="Sink",
             )
         )
-        fig.add_trace(go.Contour(z=array(full_probability), x=pxs, y=pys))
+        fig.add_trace(go.Contour(z=array(full_probability), x=pxs, y=pys, coloraxis="coloraxis"))
         fig.add_trace(go.Scatter(x=sxs, y=sys, mode="markers"))
+        # fig.update(layout_coloraxis_showscale=False)
+        fig.update_coloraxes(showscale=False)
+        fig.update_layout(showlegend=False)
         graphjson = fig.to_json()
+
+        fig = go.Figure()
+        fig.add_trace(go.Scatter(x=xs, y=ys, mode="markers"))
+        fig.add_trace(go.Scatter(x=sxs, y=sys, mode="markers"))
+        fig.add_trace(go.Contour(z=array(decision_function), x=pxs, y=pys))
+        fig.update_layout(showlegend=False)
+        graphjson_decision_function = fig.to_json()
+
 
     return templates.TemplateResponse(
         "source_sink.html",
@@ -107,6 +125,7 @@ def source_sink(request: Request, age: str = None, kca: str = None):
             "kca": kca,
             "match": match,
             "graphJSON": graphjson,
+            "graphJSON_decision_function": graphjson_decision_function,
         },
     )
 

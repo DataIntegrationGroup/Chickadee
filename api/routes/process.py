@@ -43,7 +43,7 @@ from numpy import (
 )
 from scipy.stats import kstest, norm, ttest_ind
 from sklearn import svm
-from sklearn.pipeline import make_pipeline
+from sklearn.pipeline import make_pipeline, Pipeline
 from sklearn.preprocessing import StandardScaler
 from sqlalchemy.orm import Session
 from starlette.responses import Response
@@ -116,19 +116,18 @@ async def match_to_source(
 
 def source_matcher(age, kca):
     if age:
-        age, age_error = [float(a) for a in age.split(",")]
+        if ',' in age:
+            age, age_error = [float(a) for a in age.split(",")]
+        else:
+            age, age_error = float(age), 0.0
     if kca:
-        kca, kca_error = [float(a) for a in kca.split(",")]
+        if ',' in kca:
+            kca, kca_error = [float(a) for a in kca.split(",")]
+        else:
+            kca, kca_error = float(kca), 0.0
 
     xmin = age * 0.95
     xmax = age * 1.05
-    # ymin = kca * 0.75
-    # ymax = kca * 1.25
-
-    # q = Query(db, MSample)
-    # samples = q.all()
-    n = 100
-    # for si in samples:
 
     ans = ANS
     ages = array([a.value for a in ans if a.slug == "age"])
@@ -137,15 +136,12 @@ def source_matcher(age, kca):
     kcas = [a.value for a in ans if a.slug == "kca"]
     kca_errors = [a.error for a in ans if a.slug == "kca"]
 
-    # xmin = min(ages)
-    # xmax = max(ages)
-    # ymin = min(kcas)
-    # ymax = max(kcas)
-
-    # idx, ages = array([ for i, a in enumerate(ages) if xmin <= a <= xmax]).T
     idx = [xmin <= a <= xmax for a in ages]
     ages = ages[idx]
     kcas = array(kcas)[idx]
+
+    aes = array(age_errors)[idx]
+    kes = array(kca_errors)[idx]
 
     ymin = min(kcas)
     ymax = max(kcas)
@@ -186,7 +182,7 @@ def source_matcher(age, kca):
     nstep = 100
     lxx = linspace(xmin, xmax, nstep)
     lyy = linspace(ymin, ymax, nstep)
-    xx, yy = meshgrid(lxx, lyy.T)
+    xx, yy = meshgrid(lxx, lyy)
     Xfull = c_[xx.ravel(), yy.ravel()]
     # x = array([[-1, -1], [-2, -1], [1, 1], [2, 1]])
     # y = array([1, 1, 2, 2])
@@ -194,17 +190,17 @@ def source_matcher(age, kca):
     # clf.fit(X, y)
     # print(x, y)
     # clf = make_pipeline(StandardScaler(), svm.SVC(gamma=2, C=1, probability=True))
-    clf = make_pipeline(StandardScaler(), svm.SVC(probability=True))
+    # clf = make_pipeline(StandardScaler(), ('classifier', svm.SVC(gamma=1, probability=True)))
     # clf = make_pipeline(StandardScaler(), KNeighborsClassifier(3))
+    clf = Pipeline([("scaler", StandardScaler()), ("classifier", svm.SVC(gamma=1, probability=True))])
     if unique(y).size == 1:
         prediction = y[0]
         pklass = ys[prediction]
         score = -1
+        probas = zeros((nstep, nstep))
+        df = zeros((nstep, nstep))
     else:
-        try:
-            clf.fit(x, y)
-        except Exception as e:
-            return Response(str(e), status_code=400)
+        clf.fit(x, y, classifier__sample_weight=1 / (aes ** 2 + kes ** 2))
 
         probs = clf.predict_proba([[age, kca]])[0]
 
@@ -217,12 +213,17 @@ def source_matcher(age, kca):
         # print(probs[k], max(probas[:, k]))
 
         probas = clf.predict_proba(Xfull)
+        probas = probas[:, k].reshape((nstep, nstep))
+
+        df = clf.decision_function(Xfull)
+        df = df[:,k].reshape((nstep, nstep))
         # ypred = clf.predict(x)
         idx = y == k
         if PLOT:
             plt.scatter(x[idx, 0], x[idx, 1], marker="+")
             handle = plt.imshow(
-                probas[:, k].reshape((nstep, nstep)),
+                probas,
+                # probas[:, k].reshape((nstep, nstep)),
                 extent=(xmin, xmax, ymin, ymax),
                 origin="lower",
             )
@@ -270,6 +271,7 @@ def source_matcher(age, kca):
     mkca = mean(source_kcas)
     age_zscore = (age - mage) / std(source_ages)
     kca_zscore = (kca - mkca) / std(source_kcas)
+
     return {
         "source": {
             "name": pklass,
@@ -284,10 +286,11 @@ def source_matcher(age, kca):
         "sink": {"age": age, "kca": kca},
         "ages": ages.tolist(),
         "kcas": kcas.tolist(),
-        "full_probability": probas[:, k].reshape((nstep, nstep)).tolist(),
+        "full_probability": probas.tolist(),
+        'decision_function': df.tolist(),
         "pxs": lxx.tolist(),
         "pys": lyy.tolist(),
-        "best_klass": best_klass,
+        "mean_closest_klass": best_klass,
     }
 
 
