@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ===============================================================================
+from pathlib import Path
 from typing import List
 
 from geoalchemy2 import Geometry
@@ -27,14 +28,26 @@ from sqlalchemy import or_
 from sqlalchemy.orm import Session
 from starlette.responses import Response
 from starlette.status import HTTP_200_OK, HTTP_422_UNPROCESSABLE_ENTITY
+from starlette.templating import Jinja2Templates
 
 from constants import API_PREFIX, API_VERSION
 from models.sample import Sample as MSample, Material as MMaterial, SampleProperty
 from dependencies import get_db
 from routes import Query, make_properties
-from schemas.sample import Sample, Material, CreateSample, GeoJSONFeatureCollection
+from schemas.sample import Sample, Material, CreateSample, GeoJSONFeatureCollection, SampleDetail
+
+BASE_DIR = Path(__file__).resolve().parent
+templates = Jinja2Templates(directory=str(Path(BASE_DIR, "templates")))
+
 
 router = APIRouter(prefix=f"{API_PREFIX}/sample", tags=["Sample"])
+
+
+@router.get('/detail/{slug}', response_model=SampleDetail)
+def get_sample_detail(slug: str, db: Session = Depends(get_db)):
+    q = Query(db, MSample)
+    q.add_slug_query(slug)
+    return q.one()
 
 
 @router.get("/geojson", response_model=GeoJSONFeatureCollection)

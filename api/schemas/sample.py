@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ===============================================================================
+from typing import Optional
+
 from pydantic import BaseModel, Field
 
 from . import NamedModel
@@ -25,12 +27,18 @@ class Sample(NamedModel):
     longitude: float
 
 
+class SampleDetail(Sample):
+    pass
+
+
 class CreateSample(NamedModel):
     project: str
     material: str
     latitude: float
     longitude: float
     properties: dict = Field(default_factory=dict)
+    publication: Optional[str] = None
+    doi: Optional[str] = None
 
 
 class Material(NamedModel):
@@ -40,6 +48,7 @@ class Material(NamedModel):
 class GeoJSONFeatureCollection(BaseModel):
     type: str = "FeatureCollection"
     features: list = Field(..., alias="features")
+
 
 
 # ============= EOF =============================================

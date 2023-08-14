@@ -33,7 +33,7 @@ def test(v, t="yes"):
 
 
 def extract():
-    p = "./testdata/NMGeochron2022_samples.csv"
+    p = "./testdata/NMGeochron2022_samples2.csv"
     with open(p, "r") as rfile:
         reader = csv.DictReader(rfile)
         for i, row in enumerate(reader):
@@ -54,17 +54,6 @@ def extract_ds():
     source_summary_df = pd.read_excel(p, sheet_name="summary")
 
     for i, su in source_summary_df.iterrows():
-        # idx = [(not isnull(row['Run_ID']) and row['Run_ID'].startswith(str(su['L#']))) for i, row in
-        #        source_df.iterrows()]
-        # analyses = source_df[idx]
-        # # print(analyses)
-        # ran = analyses.iloc[0]
-        #
-        # runtime = ran['Run_Hour']
-        # runtime = dtime(hour=int(runtime), minute=int(runtime % 1 * 60))
-        # rundate = ran['Run_Date']
-        # dt = datetime.combine(rundate, runtime).isoformat()
-
         yield su.to_dict()
 
 
@@ -96,17 +85,21 @@ def transform(data):
         if not test(row["Include Sparrow"]):
             continue
 
+        if not row['Project']:
+            continue
+
         # if not test(row['Complete']):
         #     continue
-        for k, ki in (
-            ("age", "Assigned Age"),
-            ("age_err", "Assigned Age Error"),
-            ("kca", "K/Ca"),
-            ("kca_err", "K/Ca Error"),
+        for k, ki, cast in (
+            ("age", "Assigned Age", float),
+            ("age_err", "Assigned Age Error", float),
+            ("kca", "K/Ca", float),
+            ("kca_err", "K/Ca Error", float),
+            ('age_interpretation', "Assigned Age Interpretation", str),
         ):
             v = row[ki].strip()
             try:
-                row[k] = float(v)
+                row[k] = cast(v)
             except ValueError:
                 row[k] = -1
 
@@ -217,7 +210,10 @@ def make_sample_payload(row):
         "project": row["Project"],
         "latitude": row["Latitude"],
         "longitude": row["Longitude"],
+        "publication": row['Publication'],
+        "doi": row['DOI'],
         "properties": {
+            "age_interpretation": {"value": row["age_interpretation"] or ""},
             "age": {
                 "value": row["age"] or 0,
                 "error": row["age_err"] or 0,
@@ -276,7 +272,7 @@ def etl_analyses_ds():
 
 
 if __name__ == "__main__":
-    # etl()
+    etl()
     # etl_ds()
-    etl_analyses_ds()
+    # etl_analyses_ds()
 # ============= EOF =============================================

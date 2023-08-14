@@ -29,6 +29,9 @@ from app import app
 from constants import API_PREFIX
 from pathlib import Path
 
+from dependencies import get_db
+from schemas.sample import SampleDetail
+
 if int(os.environ.get("CHICKADEE_ERASE_AND_REBUILD_DB", 0)):
     from database import engine
     from models import sample, project, analysis, Base
@@ -36,7 +39,9 @@ if int(os.environ.get("CHICKADEE_ERASE_AND_REBUILD_DB", 0)):
     Base.metadata.drop_all(bind=engine)
     Base.metadata.create_all(bind=engine)
 
-from routes import sample, project, analysis, material, process
+from routes import sample, project, analysis, material, process, Query
+from models.sample import Sample as MSample
+
 
 app.include_router(sample.router)
 app.include_router(project.router)
@@ -53,6 +58,17 @@ def mapboxtoken():
     return {
         "token": "pk.eyJ1IjoiamFrZXJvc3N3ZGkiLCJhIjoiY2s3M3ZneGl4MGhkMDNrcjlocmNuNWg4bCJ9.4r1DRDQ_ja0fV2nnmlVT0A"
     }
+
+@app.get("/sample/detail/{slug}", response_class=HTMLResponse, name="sample_detail")
+def get_sample_detail_page(request: Request, slug: str, db: Session = Depends(get_db)):
+
+    return templates.TemplateResponse(
+        "sample_detail_view.html",
+        {
+            'slug': slug,
+            "request": request,
+        },
+    )
 
 
 @app.get("/source_sink", response_class=HTMLResponse)
@@ -73,7 +89,7 @@ def source_sink(request: Request, age: str = None, kca: str = None):
         import plotly.graph_objects as go
 
         fig = go.Figure()
-        fig.layout.margin = {"l": 80, "r": 85, "t": 70, "b": 0}
+        fig.layout.margin = {"l": 80, "r": 50, "t": 70, "b": 0}
 
         fig.layout.xaxis.title = "Age (Ma)"
         fig.layout.yaxis.title = "K/Ca"
@@ -97,16 +113,12 @@ def source_sink(request: Request, age: str = None, kca: str = None):
 
         bxs = match["mean_closest"].pop("ages")
         bys = match["mean_closest"].pop("kcas")
-        # bxs = match.pop("mean_closest_xs")
-        # bys = match.pop("mean_closest_ys")
 
         nage = match["sink"]["age"]
         nkca = match["sink"]["kca"]
-        # nage, _ = age.split(",")
-        # nkca, _ = kca.split(",")
 
-        fig.add_trace(go.Scatter(x=xs, y=ys, mode="markers", name="TestPlot"))
-        fig.add_trace(go.Scatter(x=bxs, y=bys, mode="markers", name="Background"))
+        fig.add_trace(go.Scatter(x=xs, y=ys, mode="markers"))
+        fig.add_trace(go.Scatter(x=bxs, y=bys, mode="markers"))
         fig.add_trace(
             go.Scatter(
                 x=[nage],
@@ -121,7 +133,6 @@ def source_sink(request: Request, age: str = None, kca: str = None):
             go.Contour(z=array(full_probability), x=pxs, y=pys, coloraxis="coloraxis")
         )
         fig.add_trace(go.Scatter(x=sxs, y=sys, mode="markers"))
-        # fig.update(layout_coloraxis_showscale=False)
         fig.update_coloraxes(showscale=False)
         fig.update_layout(showlegend=False)
         graphjson = fig.to_json()
@@ -129,7 +140,7 @@ def source_sink(request: Request, age: str = None, kca: str = None):
         fig = go.Figure()
         fig.layout.xaxis.title = "Age (Ma)"
         fig.layout.yaxis.title = "K/Ca"
-        fig.layout.margin = {"l": 80, "r": 0, "t": 70, "b": 0}
+        fig.layout.margin = {"l": 80, "r": 50, "t": 70, "b": 0}
         fig.layout.title = {
             "text": "Decision Function",
             "y": 0.9,
@@ -140,7 +151,8 @@ def source_sink(request: Request, age: str = None, kca: str = None):
 
         fig.add_trace(go.Scatter(x=xs, y=ys, mode="markers"))
         fig.add_trace(go.Scatter(x=sxs, y=sys, mode="markers"))
-        fig.add_trace(go.Contour(z=array(decision_function), x=pxs, y=pys))
+        fig.add_trace(go.Contour(z=array(decision_function), x=pxs, y=pys, coloraxis="coloraxis"))
+        fig.update_coloraxes(showscale=False)
         fig.update_layout(showlegend=False)
         graphjson_decision_function = fig.to_json()
 
@@ -163,9 +175,6 @@ def map_view(request: Request):
         "map_view.html",
         {
             "request": request,
-            # "center": {"lat": 34.5, "lon": -106.0},
-            # "zoom": 7,
-            # "data_url": "/locations/fc",
         },
     )
 
@@ -176,9 +185,6 @@ def map_view(request: Request):
         "table_view.html",
         {
             "request": request,
-            # "center": {"lat": 34.5, "lon": -106.0},
-            # "zoom": 7,
-            # "data_url": "/locations/fc",
         },
     )
 

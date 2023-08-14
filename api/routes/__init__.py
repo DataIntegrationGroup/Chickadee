@@ -79,6 +79,10 @@ class Query:
         # db.refresh_item(item)
         return item
 
+    def one(self):
+        print(compile_query(self.q))
+        return self.q.one()
+
     def all(self):
         print(compile_query(self.q))
 
@@ -179,7 +183,7 @@ def make_properties(properties, table):
         elif isinstance(vv, int):
             prop.value_int = vv
 
-        prop.units = v["units"]
+        prop.units = v.get("units", '')
         props.append(prop)
 
     return props
