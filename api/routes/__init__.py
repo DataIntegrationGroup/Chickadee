@@ -183,7 +183,7 @@ def make_properties(properties, table):
         elif isinstance(vv, int):
             prop.value_int = vv
 
-        prop.units = v.get("units", '')
+        prop.units = v.get("units", "")
         props.append(prop)
 
     return props

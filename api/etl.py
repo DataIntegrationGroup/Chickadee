@@ -85,7 +85,7 @@ def transform(data):
         if not test(row["Include Sparrow"]):
             continue
 
-        if not row['Project']:
+        if not row["Project"]:
             continue
 
         # if not test(row['Complete']):
@@ -95,7 +95,7 @@ def transform(data):
             ("age_err", "Assigned Age Error", float),
             ("kca", "K/Ca", float),
             ("kca_err", "K/Ca Error", float),
-            ('age_interpretation', "Assigned Age Interpretation", str),
+            ("age_interpretation", "Assigned Age Interpretation", str),
         ):
             v = row[ki].strip()
             try:
@@ -210,8 +210,8 @@ def make_sample_payload(row):
         "project": row["Project"],
         "latitude": row["Latitude"],
         "longitude": row["Longitude"],
-        "publication": row['Publication'],
-        "doi": row['DOI'],
+        "publication": row["Publication"],
+        "doi": row["DOI"],
         "properties": {
             "age_interpretation": {"value": row["age_interpretation"] or ""},
             "age": {

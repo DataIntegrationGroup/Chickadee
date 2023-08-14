@@ -59,13 +59,13 @@ def mapboxtoken():
         "token": "pk.eyJ1IjoiamFrZXJvc3N3ZGkiLCJhIjoiY2s3M3ZneGl4MGhkMDNrcjlocmNuNWg4bCJ9.4r1DRDQ_ja0fV2nnmlVT0A"
     }
 
+
 @app.get("/sample/detail/{slug}", response_class=HTMLResponse, name="sample_detail")
 def get_sample_detail_page(request: Request, slug: str, db: Session = Depends(get_db)):
-
     return templates.TemplateResponse(
         "sample_detail_view.html",
         {
-            'slug': slug,
+            "slug": slug,
             "request": request,
         },
     )
@@ -151,7 +151,9 @@ def source_sink(request: Request, age: str = None, kca: str = None):
 
         fig.add_trace(go.Scatter(x=xs, y=ys, mode="markers"))
         fig.add_trace(go.Scatter(x=sxs, y=sys, mode="markers"))
-        fig.add_trace(go.Contour(z=array(decision_function), x=pxs, y=pys, coloraxis="coloraxis"))
+        fig.add_trace(
+            go.Contour(z=array(decision_function), x=pxs, y=pys, coloraxis="coloraxis")
+        )
         fig.update_coloraxes(showscale=False)
         fig.update_layout(showlegend=False)
         graphjson_decision_function = fig.to_json()

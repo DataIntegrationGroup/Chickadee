@@ -34,7 +34,13 @@ from constants import API_PREFIX, API_VERSION
 from models.sample import Sample as MSample, Material as MMaterial, SampleProperty
 from dependencies import get_db
 from routes import Query, make_properties
-from schemas.sample import Sample, Material, CreateSample, GeoJSONFeatureCollection, SampleDetail
+from schemas.sample import (
+    Sample,
+    Material,
+    CreateSample,
+    GeoJSONFeatureCollection,
+    SampleDetail,
+)
 
 BASE_DIR = Path(__file__).resolve().parent
 templates = Jinja2Templates(directory=str(Path(BASE_DIR, "templates")))
@@ -43,7 +49,7 @@ templates = Jinja2Templates(directory=str(Path(BASE_DIR, "templates")))
 router = APIRouter(prefix=f"{API_PREFIX}/sample", tags=["Sample"])
 
 
-@router.get('/detail/{slug}', response_model=SampleDetail)
+@router.get("/detail/{slug}", response_model=SampleDetail)
 def get_sample_detail(slug: str, db: Session = Depends(get_db)):
     q = Query(db, MSample)
     q.add_slug_query(slug)

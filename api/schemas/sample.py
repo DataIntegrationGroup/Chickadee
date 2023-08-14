@@ -50,5 +50,4 @@ class GeoJSONFeatureCollection(BaseModel):
     features: list = Field(..., alias="features")
 
 
-
 # ============= EOF =============================================
