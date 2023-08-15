@@ -184,7 +184,7 @@ def alter_property(prop, v):
     elif isinstance(vv, int):
         prop.value_int = vv
 
-    prop.units = v.get("units", '')
+    prop.units = v.get("units", "")
     return prop
 
 

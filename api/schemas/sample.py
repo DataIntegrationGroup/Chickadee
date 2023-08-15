@@ -40,7 +40,6 @@ class SampleProperty(BaseModel):
 
 
 class SampleDetail(Sample):
-
     properties: list[SampleProperty] = Field(default_factory=list)
 
 
