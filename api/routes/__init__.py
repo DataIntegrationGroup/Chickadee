@@ -166,27 +166,34 @@ def root_query(name: str, db, table):
 def make_properties(properties, table):
     props = []
     for k, v in properties.items():
-        prop = table()
-        # prop.analysis_slug = an.slug
-
-        prop.slug = k.replace(" ", "_")
-        prop.name = k
-
-        vv = v["value"]
-        if isinstance(vv, str):
-            prop.value_str = vv
-        elif isinstance(vv, float):
-            prop.value = vv
-            prop.error = v["error"]
-        elif isinstance(vv, bool):
-            prop.value_bool = vv
-        elif isinstance(vv, int):
-            prop.value_int = vv
-
-        prop.units = v.get("units", "")
+        prop = make_property(k, v, table)
         props.append(prop)
 
     return props
+
+
+def alter_property(prop, v):
+    vv = v["value"]
+    if isinstance(vv, str):
+        prop.value_str = vv
+    elif isinstance(vv, float):
+        prop.value = vv
+        prop.error = v.get("error", 0)
+    elif isinstance(vv, bool):
+        prop.value_bool = vv
+    elif isinstance(vv, int):
+        prop.value_int = vv
+
+    prop.units = v.get("units", '')
+    return prop
+
+
+def make_property(k, v, table):
+    prop = table()
+    prop.slug = k.replace(" ", "_")
+    prop.name = k
+
+    return alter_property(prop, v)
 
 
 #

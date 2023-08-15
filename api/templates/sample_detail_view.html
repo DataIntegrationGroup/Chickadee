@@ -15,18 +15,64 @@
 {% block content %}
     <h1>Sample View</h1>
     <p>This is a sample view.</p>
+    <div class="row">
+        <div class="col-5">
+            <pre>
+                <code id='foo'
+                      class="language-json"
+                      hx-get=/api/v1/sample/detail/{{ slug }}
+                      hx-trigger="load"
+                      hx-on:htmx:after-request="$('#foo').html(js_beautify(event.target.innerHTML));
+                      hljs.highlightAll();"
+                >
+                </code>
+            </pre>
+        </div>
+        <div class="col-7">
+            <table id="propertiestable" class="display compact">
+                <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Value</th>
+                    <th>Error</th>
+                    <th>Value Str</th>
+                    <th>Value Bool</th>
+                </tr>
+                </thead>
+            </table>
+        </div>
 
-    <pre>
-        <code id='foo'
-              class="language-json"
-              hx-get=/api/v1/sample/detail/{{ slug }}
-              hx-trigger="load"
-              hx-on:htmx:after-request="$('#foo').html(js_beautify(event.target.innerHTML));
-              hljs.highlightAll();"
-        >
-        </code>
-    </pre>
+<!--        <div class="col-10">-->
+<!--            <div hx-get="/api/v1/sample/detail/{{ slug }}" hx-trigger="load">-->
+<!--            </div>-->
+<!--        </div>-->
+    </div>
 
+    <script>
+        $('#propertiestable').DataTable({
+            // ordering: false,
+            searching: false,
+            paging: false,
+            info: false,
+            columns: [
+                { data: 'slug'},
+                {data: 'value'},
+                {data: 'error'},
+                {data: 'value_str'},
+                {data: 'value_bool'},
+                // {data: 'material_slug'},
+                // {data: 'latitude'},
+                // {data: 'longitude'},
+            ],
+            ajax: {
+                url: '/api/v1/sample/detail/{{ slug }}',
+                dataSrc: function(resp){
+                    console.log(resp)
+                    return resp.properties
+
+                }
+            }});
+    </script>
 
 
 {% endblock %}

@@ -25,10 +25,23 @@ class Sample(NamedModel):
     material_slug: str
     latitude: float
     longitude: float
+    publication: Optional[str] = None
+    doi: Optional[str] = None
+
+
+class SampleProperty(BaseModel):
+    slug: str
+    value: Optional[float] = None
+    error: Optional[float] = None
+    units: Optional[str] = None
+    value_str: Optional[str] = None
+    value_int: Optional[int] = None
+    value_bool: Optional[bool] = None
 
 
 class SampleDetail(Sample):
-    pass
+
+    properties: list[SampleProperty] = Field(default_factory=list)
 
 
 class CreateSample(NamedModel):

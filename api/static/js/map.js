@@ -53,20 +53,28 @@ function initMap(center, zoom, dataurl){
         while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
             coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
         }
-        // const description = e.features[0].properties.name
-        // let wd = JSON.parse(e.features[0].properties.well_depth).value
-        // if (wd == null){
-        //     wd = 'Not known'
-        // }
-        //
-        // const txt = '<b>'+description+'</b><br>Well Depth (ft): '+wd
+
         const props = e.features[0].properties
+
+        const age = JSON.parse(props.age)
+        const kca = JSON.parse(props.kca)
+
+        let age_str = '<b>Age: </b>'
+        let kca_str = '<b>K/Ca: </b>'
+        if (age.value){
+            age_str += age.value.toFixed(5) + ' ±' + age.error.toFixed(5)
+        }
+        if (kca.value){
+            kca_str += kca.value.toFixed(5) + ' ±' + kca.error.toFixed(5)
+        }
+
         const txt = '<b>Name</b> ' + props.name + '<br>' +
             '<b>Location:</b> ' + coordinates[0].toFixed(3) +','+coordinates[1].toFixed(3) + '<br>' +
             '<b>Project:</b> ' + props.project + '<br>' +
-            '<b>Material:</b> '+ props.material
+            '<b>Material:</b> '+ props.material + '<br>' +
+            age_str + '<br>' +
+            kca_str
 
-        console.log(e.features[0])
         popup.setLngLat(coordinates).setHTML(txt).addTo(map);
 
     });
