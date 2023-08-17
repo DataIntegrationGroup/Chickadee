@@ -17,7 +17,10 @@ from datetime import datetime
 
 from sqlalchemy import intersect, union
 from sqlalchemy.engine.default import DefaultDialect
+from sqlalchemy.exc import NoResultFound
 from sqlalchemy.sql.sqltypes import NullType, String as SQLString, DateTime
+from starlette.responses import Response
+from starlette.status import HTTP_422_UNPROCESSABLE_ENTITY
 
 
 class StringLiteral(SQLString):
@@ -79,12 +82,14 @@ class Query:
         # db.refresh_item(item)
         return item
 
-    def one(self):
-        print(compile_query(self.q))
+    def one(self, verbose=False):
+        if verbose:
+            print('Query one', compile_query(self.q))
         return self.q.one()
 
-    def all(self):
-        print(compile_query(self.q))
+    def all(self, verbose=False):
+        if verbose:
+            print('Query all', compile_query(self.q))
 
         return self.q.all()
 
@@ -195,6 +200,28 @@ def make_property(k, v, table):
 
     return alter_property(prop, v)
 
+
+def unique_add(db, table, item):
+    print('unique_add', item.name)
+    q = Query(db, table)
+    q.add_name_query(item.name)
+    # if q.all():
+    #     return Response(status_code=HTTP_422_UNPROCESSABLE_ENTITY)
+    # raise Exception(f"Project {project.name} already exists")
+
+    try:
+        proj = q.one()
+    except NoResultFound:
+        proj = None
+
+    if proj is None:
+        params = item.model_dump()
+        params["slug"] = params["name"].replace(" ", "_")
+
+        return q.add(table(**params))
+    else:
+        print('item already exists', item.name)
+        return Response(status_code=HTTP_422_UNPROCESSABLE_ENTITY)
 
 #
 # def property_query(q, query, table):

@@ -17,6 +17,7 @@ import datetime
 from typing import List
 
 from fastapi import APIRouter, Depends
+from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
 from starlette.responses import Response
 from starlette.status import HTTP_200_OK, HTTP_422_UNPROCESSABLE_ENTITY
@@ -24,7 +25,7 @@ from starlette.status import HTTP_200_OK, HTTP_422_UNPROCESSABLE_ENTITY
 from constants import API_PREFIX, API_VERSION
 from dependencies import get_db
 from models.project import Project as MProject
-from routes import root_query, Query
+from routes import root_query, Query, unique_add
 from schemas.project import Project
 
 router = APIRouter(prefix=f"{API_PREFIX}/project", tags=["Project"])
@@ -53,16 +54,26 @@ async def root(
 
 @router.post("/add", response_model=Project)
 async def create(project: Project, db: Session = Depends(get_db)):
-    q = Query(db, MProject)
-    q.add_name_query(project.name)
-    if q.all():
-        return Response(status_code=HTTP_422_UNPROCESSABLE_ENTITY)
-        # raise Exception(f"Project {project.name} already exists")
+    return unique_add(db, MProject, project)
 
-    params = project.model_dump()
-    params["slug"] = params["name"].replace(" ", "_")
-
-    return q.add(MProject(**params))
+    # q = Query(db, MProject)
+    # q.add_name_query(project.name)
+    # # if q.all():
+    # #     return Response(status_code=HTTP_422_UNPROCESSABLE_ENTITY)
+    #     # raise Exception(f"Project {project.name} already exists")
+    #
+    # try:
+    #     proj = q.one()
+    # except NoResultFound:
+    #     proj = None
+    #
+    # if proj is None:
+    #     params = project.model_dump()
+    #     params["slug"] = params["name"].replace(" ", "_")
+    #
+    #     return q.add(MProject(**params))
+    # else:
+    #     return Response(status_code=HTTP_422_UNPROCESSABLE_ENTITY)
 
 
 # ============= EOF =============================================

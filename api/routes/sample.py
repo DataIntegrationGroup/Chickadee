@@ -25,6 +25,7 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 from sqlalchemy import or_
+from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
 from starlette.responses import Response
 from starlette.status import HTTP_200_OK, HTTP_422_UNPROCESSABLE_ENTITY
@@ -96,9 +97,14 @@ async def root(name: str = None, db: Session = Depends(get_db)):
 
 @router.post("/add", response_model=Sample)
 async def create_sample(sample: CreateSample, db: Session = Depends(get_db)):
+
+    print('create sample', sample.name)
     q = Query(db, MSample)
     q.add_name_query(sample.name)
-    dbsam = q.one()
+    try:
+        dbsam = q.one()
+    except NoResultFound:
+        dbsam = None
 
     params = sample.model_dump()
 

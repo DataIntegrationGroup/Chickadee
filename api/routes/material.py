@@ -16,6 +16,7 @@
 from typing import List
 
 from fastapi import APIRouter, Depends
+from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
 from starlette.responses import Response
 from starlette.status import HTTP_200_OK, HTTP_422_UNPROCESSABLE_ENTITY
@@ -23,7 +24,7 @@ from starlette.status import HTTP_200_OK, HTTP_422_UNPROCESSABLE_ENTITY
 from constants import API_PREFIX, API_VERSION
 from models.sample import Sample as MSample, Material as MMaterial
 from dependencies import get_db
-from routes import Query
+from routes import Query, unique_add
 from schemas.sample import Sample, Material, CreateSample
 
 router = APIRouter(prefix=f"{API_PREFIX}/material", tags=["Material"])
@@ -38,15 +39,22 @@ async def root(name: str = None, db: Session = Depends(get_db)):
 
 @router.post("/add", response_model=Material)
 async def create_material(material: Material, db: Session = Depends(get_db)):
-    q = Query(db, MMaterial)
-    q.add_name_query(material.name)
-    if q.all():
-        return Response(status_code=HTTP_422_UNPROCESSABLE_ENTITY)
+    return unique_add(db, MMaterial, material)
 
-    params = material.model_dump()
-    params["slug"] = params["name"].replace(" ", "_")
-
-    return q.add(MMaterial(**params))
+    # q = Query(db, MMaterial)
+    # q.add_name_query(material.name)
+    # try:
+    #     mat = q.one()
+    # except NoResultFound:
+    #     mat = None
+    #
+    # if not mat:
+    #     params = material.model_dump()
+    #     params["slug"] = params["name"].replace(" ", "_")
+    #
+    #     return q.add(MMaterial(**params))
+    # else:
+    #     return Response(status_code=HTTP_422_UNPROCESSABLE_ENTITY)
 
 
 # ============= EOF =============================================
