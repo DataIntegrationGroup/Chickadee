@@ -139,8 +139,6 @@ def source_matcher(age, kca):
         except DetachedInstanceError:
             ans = get_analyses(force=True)
 
-
-
     kcas = [a.value for a in ans if a.slug == "kca"]
     kca_errors = [a.error for a in ans if a.slug == "kca"]
 
