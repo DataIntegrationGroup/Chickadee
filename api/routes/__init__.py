@@ -84,12 +84,12 @@ class Query:
 
     def one(self, verbose=False):
         if verbose:
-            print('Query one', compile_query(self.q))
+            print("Query one", compile_query(self.q))
         return self.q.one()
 
     def all(self, verbose=False):
         if verbose:
-            print('Query all', compile_query(self.q))
+            print("Query all", compile_query(self.q))
 
         return self.q.all()
 
@@ -202,7 +202,7 @@ def make_property(k, v, table):
 
 
 def unique_add(db, table, item):
-    print('unique_add', item.name)
+    print("unique_add", item.name)
     q = Query(db, table)
     q.add_name_query(item.name)
     # if q.all():
@@ -220,8 +220,9 @@ def unique_add(db, table, item):
 
         return q.add(table(**params))
     else:
-        print('item already exists', item.name)
+        print("item already exists", item.name)
         return Response(status_code=HTTP_422_UNPROCESSABLE_ENTITY)
+
 
 #
 # def property_query(q, query, table):

@@ -97,8 +97,7 @@ async def root(name: str = None, db: Session = Depends(get_db)):
 
 @router.post("/add", response_model=Sample)
 async def create_sample(sample: CreateSample, db: Session = Depends(get_db)):
-
-    print('create sample', sample.name)
+    print("create sample", sample.name)
     q = Query(db, MSample)
     q.add_name_query(sample.name)
     try:
