@@ -16,6 +16,8 @@
 from itertools import groupby
 from operator import or_
 
+from sqlalchemy.orm.exc import DetachedInstanceError
+
 from constants import API_PREFIX, API_VERSION
 from models.analysis import Analysis, AnalysisProperty
 from models.sample import Sample as MSample, Material as MMaterial, SampleProperty
@@ -84,9 +86,9 @@ except ImportError:
 ANS = None
 
 
-def get_analyses():
+def get_analyses(force=False):
     global ANS
-    if ANS:
+    if ANS and not force:
         ans = ANS
     else:
         db = next(get_db())
@@ -129,9 +131,15 @@ def source_matcher(age, kca):
     xmin = age * 0.95
     xmax = age * 1.05
 
-    ans = ANS
-    ages = array([a.value for a in ans if a.slug == "age"])
-    age_errors = [a.error for a in ans if a.slug == "age"]
+    ans = get_analyses()
+    for i in range(2):
+        try:
+            ages = array([a.value for a in ans if a.slug == "age"])
+            age_errors = [a.error for a in ans if a.slug == "age"]
+        except DetachedInstanceError:
+            ans = get_analyses(force=True)
+
+
 
     kcas = [a.value for a in ans if a.slug == "kca"]
     kca_errors = [a.error for a in ans if a.slug == "kca"]
