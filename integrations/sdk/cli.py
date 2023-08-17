@@ -17,11 +17,11 @@ import os
 
 
 def get_input(msg):
-    return input(f'{msg}: ')
+    return input(f"{msg}: ")
 
 
 def write_file(path, txt):
-    with open(path, 'w') as wfile:
+    with open(path, "w") as wfile:
         wfile.write(txt)
 
 
@@ -33,21 +33,21 @@ def create_new_integration():
 
     print(f"Creating new integration called {name}")
 
-    os.mkdir(f'../{name}')
-    os.chdir(f'../{name}')
+    os.mkdir(f"../{name}")
+    os.chdir(f"../{name}")
 
-    p = 'main.py'
-    txt = '''
+    p = "main.py"
+    txt = """
 def main():
     print('hello world')
     
 if __name__ == '__main__':
-    main()'''
+    main()"""
 
     write_file(p, txt)
 
-    p = 'Dockerfile'
-    txt = '''FROM python:3.9-slim as build-image
+    p = "Dockerfile"
+    txt = """FROM python:3.9-slim as build-image
 LABEL authors="jross"
 COPY requirements.txt .
 RUN pip install --user -r requirements.txt
@@ -58,16 +58,16 @@ ENV PATH=/root/.local/bin:$PATH
 
 ADD main.py .
 
-CMD ["python", "main.py"]'''
+CMD ["python", "main.py"]"""
     write_file(p, txt)
 
-    p = 'requirements.txt'
-    txt = '''
+    p = "requirements.txt"
+    txt = """
 requests
-'''
+"""
     write_file(p, txt)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     create_new_integration()
 # ============= EOF =============================================
