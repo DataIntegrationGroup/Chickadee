@@ -50,17 +50,24 @@ templates = Jinja2Templates(directory=str(Path(BASE_DIR, "templates")))
 router = APIRouter(prefix=f"{API_PREFIX}/sample", tags=["Sample"])
 
 
-@router.get("/detail/{slug}", response_model=SampleDetail, response_model_exclude_unset=True)
+@router.get(
+    "/detail/{slug}", response_model=SampleDetail, response_model_exclude_unset=True
+)
 def get_sample_detail(slug: str, db: Session = Depends(get_db)):
     q = Query(db, MSample)
     q.add_slug_query(slug)
     try:
         return q.one()
     except NoResultFound:
-        return {'name': 'No sample found', 'slug': slug,
-                'project_slug': 'No project found',
-                'material_slug': 'No material found',
-                'latitude': 0, 'longitude': 0, 'properties': []}
+        return {
+            "name": "No sample found",
+            "slug": slug,
+            "project_slug": "No project found",
+            "material_slug": "No material found",
+            "latitude": 0,
+            "longitude": 0,
+            "properties": [],
+        }
 
 
 @router.get("/geojson", response_model=GeoJSONFeatureCollection)
@@ -144,5 +151,6 @@ async def create_sample(sample: CreateSample, db: Session = Depends(get_db)):
         dbsam = q.add(dbsample)
 
     return dbsam
+
 
 # ============= EOF =============================================
