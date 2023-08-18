@@ -38,28 +38,95 @@
             </thead>
         </table>
     </div>
-
+</div>
+<div class="row">
+    <div>
+        <h2>Sample Details</h2>
+        <table id="sampledetailtable" class="display compact">
+            <thead>
+            <tr>
+                <th>Slug</th>
+                <th>Value</th>
+                <th>Error</th>
+                <!--                <th>Value Str</th>-->
+                <!--                <th>Value Bool</th>-->
+            </tr>
+            </thead>
+        </table>
+    </div>
 </div>
 
 
 <script>
+    let sampledetailtable = new DataTable('#sampledetailtable',
+        {
+            columns: [
+                { data: 'slug'},
+                {data: 'value'},
+                {data: 'error'},
+                // {data: 'value_str'},
+                // {data: 'value_bool'},
+                // {data: 'material_slug'},
+                // {data: 'latitude'},
+                // {data: 'longitude'},
+            ],
+            ajax: {
+                 url: '/api/v1/sample/detail/empty',
+                dataSrc: function (json) {
+                    return json.properties;
+                }
+            }
+        }
+    )
 
-    $('#samplestable').DataTable({
-        // ordering: false,
-        // searching: false,
-        // paging: false,
-        // info: false,
-        columns: [
-            { data: 'name'},
-            {data: 'project_slug'},
-            {data: 'material_slug'},
-            {data: 'latitude'},
-            {data: 'longitude'},
-        ],
-        ajax: {
-            url: '/api/v1/sample',
-            dataSrc: ''
-        }});
+    let samplestable = new DataTable('#samplestable',
+        {
+            columns: [
+                {data: 'name'},
+                {data: 'project_slug'},
+                {data: 'material_slug'},
+                {data: 'latitude'},
+                {data: 'longitude'},
+                {data: 'slug', visible: false}
+            ],
+            ajax: {
+                url: '/api/v1/sample',
+                dataSrc: ''
+            }}
+    )
+    samplestable.on('click', 'tr', function () {
+        let data = samplestable.row(this).data();
+        console.log(data);
+        // window.location.href = '/sample/detail/' + data.slug;
+        console.log('/api/v1/sample/detail/' + data.slug)
+        // sampledetailtable.ajax.dataSrc = function(json) {
+        //     return json.properties;
+        // }
+        sampledetailtable.ajax.url('/api/v1/sample/detail/' + data.slug).load()
+        // sampledetailtable.ajax.reload(function(json) {
+        //     console.log('das', json);
+        //         $('#sampledetailtable').val(json.properties)
+        //     })
+
+    });
+
+
+    // $('#samplestable').DataTable({
+    //     // ordering: false,
+    //     // searching: false,
+    //     // paging: false,
+    //     // info: false,
+    //     columns: [
+    //         { data: 'name'},
+    //         {data: 'project_slug'},
+    //         {data: 'material_slug'},
+    //         {data: 'latitude'},
+    //         {data: 'longitude'},
+    //     ],
+    //     ajax: {
+    //         url: '/api/v1/sample',
+    //         dataSrc: ''
+    //     }});
 
     $('#projectstable').DataTable({
         ordering: false,

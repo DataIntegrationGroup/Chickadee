@@ -21,6 +21,7 @@ from . import NamedModel
 
 
 class Sample(NamedModel):
+    slug: str
     project_slug: str
     material_slug: str
     latitude: float
