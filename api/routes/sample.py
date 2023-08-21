@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ===============================================================================
+import time
 from pathlib import Path
 from typing import List
 
@@ -26,7 +27,7 @@ from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 from sqlalchemy import or_
 from sqlalchemy.exc import NoResultFound
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from starlette.responses import Response
 from starlette.status import HTTP_200_OK, HTTP_422_UNPROCESSABLE_ENTITY
 from starlette.templating import Jinja2Templates
@@ -70,6 +71,11 @@ def get_sample_detail(slug: str, db: Session = Depends(get_db)):
         }
 
 
+class DummyProperty:
+    def model_dump(self):
+        return {}
+
+
 @router.get("/geojson", response_model=GeoJSONFeatureCollection)
 def get_samples_geojson(db: Session = Depends(get_db)):
     q = Query(db, MSample)
@@ -81,22 +87,27 @@ def get_samples_geojson(db: Session = Depends(get_db)):
             for p in props:
                 if p.slug == name:
                     return p
+            else:
+                return DummyProperty()
 
         return {
             "type": "Feature",
             "properties": {
                 "name": sample.name,
-                "project": sample.project.name,
-                "material": sample.material.name,
+                "project": sample.project_slug,
+                "material": sample.material_slug,
                 "age": get_prop("age").model_dump(),
                 "kca": get_prop("kca").model_dump(),
             },
             "geometry": sample.geometry,
         }
+    st = time.time()
 
+    q = q.options(joinedload(MSample.properties))
     content = {
         "features": [togeojson(l) for l in q.all()],
     }
+    print("geojson", time.time() - st)
     return content
 
 
@@ -132,7 +143,7 @@ async def create_sample(sample: CreateSample, db: Session = Depends(get_db)):
     properties = params.pop("properties")
 
     if dbsam:
-        print("sample already exists. trying to patch")
+        print(f"sample {sample.name} already exists. trying to patch")
 
         for k, v in properties.items():
             dbprop = next((p for p in dbsam.properties if p.slug == k), None)
