@@ -101,6 +101,7 @@ def get_samples_geojson(db: Session = Depends(get_db)):
             },
             "geometry": sample.geometry,
         }
+
     st = time.time()
 
     q = q.options(joinedload(MSample.properties))
