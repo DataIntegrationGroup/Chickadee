@@ -103,7 +103,6 @@ def get_samples_geojson(db: Session = Depends(get_db)):
         }
 
     st = time.time()
-
     q = q.options(joinedload(MSample.properties))
     content = {
         "features": [togeojson(l) for l in q.all()],

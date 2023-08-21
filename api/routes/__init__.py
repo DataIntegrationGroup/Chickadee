@@ -82,6 +82,9 @@ class Query:
         # db.refresh_item(item)
         return item
 
+    def options(self, *args, **kw):
+        return self.q.options(*args, **kw)
+
     def one(self, verbose=False):
         if verbose:
             print("Query one", compile_query(self.q))
