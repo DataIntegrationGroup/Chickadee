@@ -83,7 +83,7 @@ class Query:
         return item
 
     def options(self, *args, **kw):
-        return self.q.options(*args, **kw)
+        self.q = self.q.options(*args, **kw)
 
     def one(self, verbose=False):
         if verbose:

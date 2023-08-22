@@ -136,6 +136,7 @@ def source_matcher(age, kca):
         try:
             ages = array([a.value for a in ans if a.slug == "age"])
             age_errors = [a.error for a in ans if a.slug == "age"]
+            break
         except DetachedInstanceError:
             ans = get_analyses(force=True)
 
@@ -181,10 +182,11 @@ def source_matcher(age, kca):
 
         dis = mean(
             [
-                ((10 * (age - a) / age) ** 2 + ((kca - k) / kca) ** 2) ** 0.5
+                (((age - a) / age) ** 2 + ((kca - k) / kca) ** 2) ** 0.5
                 for a, k, y in items
             ]
         )
+        print(dis)
         distances[ylabels[int(klass)]] = dis
 
         if dis < min_dis:
