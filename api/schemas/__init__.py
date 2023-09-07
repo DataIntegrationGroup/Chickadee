@@ -19,7 +19,7 @@ from pydantic import BaseModel, create_model
 class myBaseModel(BaseModel):
     @classmethod
     def with_fields(cls, **field_definitions):
-        return create_model('ModelWithFields', __base__=cls, **field_definitions)
+        return create_model("ModelWithFields", __base__=cls, **field_definitions)
 
 
 class ORMBaseModel(myBaseModel):
@@ -31,7 +31,6 @@ class ORMBaseModel(myBaseModel):
 
 class NamedModel(ORMBaseModel):
     name: str
-
 
 
 # ============= EOF =============================================

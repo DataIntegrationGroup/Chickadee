@@ -126,8 +126,8 @@ async def root(name: str = None, properties: str = None, db: Session = Depends(g
         field_definitions = {}
         for p in props:
             field_definitions[p] = (Optional[float], ...)
-            if p in ('age', 'kca'):
-                field_definitions[f'{p}_error'] = (Optional[float], ...)
+            if p in ("age", "kca"):
+                field_definitions[f"{p}_error"] = (Optional[float], ...)
 
         for r in rs:
             for p in props:
@@ -138,8 +138,8 @@ async def root(name: str = None, properties: str = None, db: Session = Depends(g
                     v, e = None, None
 
                 setattr(r, p, v)
-                if p in ('age', 'kca'):
-                    setattr(r, f'{p}_error', e)
+                if p in ("age", "kca"):
+                    setattr(r, f"{p}_error", e)
 
         model = Sample.with_fields(**field_definitions)
     else:
@@ -174,8 +174,10 @@ async def create_sample(sample: CreateSample, db: Session = Depends(get_db)):
     properties = params.pop("properties")
 
     if dbsam:
-        print(f"sample {sample.name} already exists. trying to patch with new properties")
-        print('properties', properties)
+        print(
+            f"sample {sample.name} already exists. trying to patch with new properties"
+        )
+        print("properties", properties)
 
         for k, v in properties.items():
             dbprop = next((p for p in dbsam.properties if p.slug == k), None)
@@ -194,5 +196,6 @@ async def create_sample(sample: CreateSample, db: Session = Depends(get_db)):
         dbsam = q.add(dbsample)
 
     return dbsam
+
 
 # ============= EOF =============================================
