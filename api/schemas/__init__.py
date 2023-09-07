@@ -13,10 +13,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ===============================================================================
-from pydantic import BaseModel
+from pydantic import BaseModel, create_model
 
 
-class ORMBaseModel(BaseModel):
+class myBaseModel(BaseModel):
+    @classmethod
+    def with_fields(cls, **field_definitions):
+        return create_model('ModelWithFields', __base__=cls, **field_definitions)
+
+
+class ORMBaseModel(myBaseModel):
     class Config:
         # orm_mode = True
         from_attributes = True
@@ -25,6 +31,7 @@ class ORMBaseModel(BaseModel):
 
 class NamedModel(ORMBaseModel):
     name: str
+
 
 
 # ============= EOF =============================================

@@ -34,6 +34,8 @@
                 <th>Material</th>
                 <th>Latitude</th>
                 <th>Longitude</th>
+                <th>Publication</th>
+                <th>DOI</th>
             </tr>
             </thead>
         </table>
@@ -48,8 +50,8 @@
                 <th>Slug</th>
                 <th>Value</th>
                 <th>Error</th>
-                <!--                <th>Value Str</th>-->
-                <!--                <th>Value Bool</th>-->
+                <th>Value Str</th>
+                <th>Value Bool</th>
             </tr>
             </thead>
         </table>
@@ -64,8 +66,8 @@
                 { data: 'slug'},
                 {data: 'value'},
                 {data: 'error'},
-                // {data: 'value_str'},
-                // {data: 'value_bool'},
+                {data: 'value_str'},
+                {data: 'value_bool'},
                 // {data: 'material_slug'},
                 // {data: 'latitude'},
                 // {data: 'longitude'},
@@ -87,6 +89,8 @@
                 {data: 'material_slug'},
                 {data: 'latitude'},
                 {data: 'longitude'},
+                {data: 'publication'},
+                {data: 'doi'},
                 {data: 'slug', visible: false}
             ],
             ajax: {

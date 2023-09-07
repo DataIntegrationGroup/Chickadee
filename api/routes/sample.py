@@ -15,7 +15,7 @@
 # ===============================================================================
 import time
 from pathlib import Path
-from typing import List
+from typing import List, Optional
 
 from geoalchemy2 import Geometry
 from sklearn import svm
@@ -111,11 +111,42 @@ def get_samples_geojson(db: Session = Depends(get_db)):
     return content
 
 
-@router.get("", response_model=List[Sample])
-async def root(name: str = None, db: Session = Depends(get_db)):
+@router.get("")
+async def root(name: str = None, properties: str = None, db: Session = Depends(get_db)):
     q = Query(db, MSample)
     q.add_name_query(name)
-    return q.all()
+    q.options(joinedload(MSample.properties))
+
+    def func(r, p):
+        return next((prop for prop in r.properties if prop.slug == p), None)
+
+    rs = q.all()
+    if properties:
+        props = properties.split(",")
+        field_definitions = {}
+        for p in props:
+            field_definitions[p] = (Optional[float], ...)
+            if p in ('age', 'kca'):
+                field_definitions[f'{p}_error'] = (Optional[float], ...)
+
+        for r in rs:
+            for p in props:
+                pp = func(r, p)
+                if pp:
+                    v, e = pp.value, pp.error
+                else:
+                    v, e = None, None
+
+                setattr(r, p, v)
+                if p in ('age', 'kca'):
+                    setattr(r, f'{p}_error', e)
+
+        model = Sample.with_fields(**field_definitions)
+    else:
+        model = Sample
+
+    rs = [model.model_validate(r) for r in rs]
+    return rs
 
 
 @router.post("/add", response_model=Sample)
@@ -143,7 +174,8 @@ async def create_sample(sample: CreateSample, db: Session = Depends(get_db)):
     properties = params.pop("properties")
 
     if dbsam:
-        print(f"sample {sample.name} already exists. trying to patch")
+        print(f"sample {sample.name} already exists. trying to patch with new properties")
+        print('properties', properties)
 
         for k, v in properties.items():
             dbprop = next((p for p in dbsam.properties if p.slug == k), None)
@@ -162,6 +194,5 @@ async def create_sample(sample: CreateSample, db: Session = Depends(get_db)):
         dbsam = q.add(dbsample)
 
     return dbsam
-
 
 # ============= EOF =============================================

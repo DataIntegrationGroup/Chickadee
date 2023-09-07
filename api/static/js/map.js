@@ -84,10 +84,10 @@ function initMap(center, zoom, dataurl){
         popup.remove();
     });
 
-    // map.on('click', 'samples', (e) => {
-    //     const pointid = e.features[0].properties.name
-    //     window.open('/locations/view/' + pointid, '_blank')
-    // });
+    map.on('click', 'samples', (e) => {
+        const name = e.features[0].properties.name
+        window.open('/sample/detail/' + name, '_blank')
+    });
 
     map.on('style.load',  (s) => {
         console.log('style loaded', s)

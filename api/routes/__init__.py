@@ -82,6 +82,9 @@ class Query:
         # db.refresh_item(item)
         return item
 
+    def join(self, *args, **kw):
+        self.q = self.q.join(*args, **kw)
+
     def options(self, *args, **kw):
         self.q = self.q.options(*args, **kw)
 
@@ -163,6 +166,12 @@ class Query:
 
             self.q = q
 
+    def add_property_out(self, expand):
+        q = self.q
+        if expand:
+            q = q.options(*expand)
+        self.q = q
+
 
 def root_query(name: str, db, table):
     q = db.query(table)
@@ -219,7 +228,7 @@ def unique_add(db, table, item):
 
     if proj is None:
         params = item.model_dump()
-        params["slug"] = params["name"].replace(" ", "_")
+        params["slug"] = params["name"].replace(" ", "_").lower()
 
         return q.add(table(**params))
     else:
