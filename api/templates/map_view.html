@@ -16,7 +16,7 @@
 
     {% include "map_include.html" %}
     <script>
-        const tokenurl = window.location.origin+'/mapboxtoken'
+        const tokenurl = 'mapboxtoken'
         fetch(tokenurl)
             .then(response => response.json())
             .then(data => {
