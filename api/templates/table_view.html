@@ -73,7 +73,7 @@
                 // {data: 'longitude'},
             ],
             ajax: {
-                 url: 'chickadee/api/v1/sample/detail/empty',
+                 url: 'api/v1/sample/detail/empty',
                 dataSrc: function (json) {
                     return json.properties;
                 }
@@ -106,7 +106,7 @@
         // sampledetailtable.ajax.dataSrc = function(json) {
         //     return json.properties;
         // }
-        sampledetailtable.ajax.url('chickadee/api/v1/sample/detail/' + data.slug).load()
+        sampledetailtable.ajax.url('api/v1/sample/detail/' + data.slug).load()
         // sampledetailtable.ajax.reload(function(json) {
         //     console.log('das', json);
         //         $('#sampledetailtable').val(json.properties)
@@ -141,7 +141,7 @@
             { data: 'name'},
         ],
         ajax: {
-            url: 'chickadee/api/v1/project',
+            url: 'api/v1/project',
             dataSrc: ''
         }});
 
