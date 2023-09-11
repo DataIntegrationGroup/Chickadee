@@ -25,6 +25,6 @@ app = FastAPI(
     },
 )
 
-app.mount("/static", StaticFiles(directory="static"), name="static")
+app.mount("/chickadee/static", StaticFiles(directory="static"), name="static")
 
 # ============= EOF =============================================
