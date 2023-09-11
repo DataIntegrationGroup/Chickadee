@@ -128,12 +128,11 @@ async def root(name: str = None, properties: str = None, db: Session = Depends(g
             if p in ("map_unit", "geologic_unit"):
                 field_definitions[p] = (Optional[str], ...)
             else:
-
                 field_definitions[p] = (Optional[float], ...)
                 if p in ("age", "kca"):
                     field_definitions[f"{p}_error"] = (Optional[float], ...)
-                    if p == 'age':
-                        field_definitions['age_units'] = (Optional[str], ...)
+                    if p == "age":
+                        field_definitions["age_units"] = (Optional[str], ...)
                         # field_definitions['age_kind'] = (Optional[str], ...)
 
         for r in rs:
@@ -141,7 +140,7 @@ async def root(name: str = None, properties: str = None, db: Session = Depends(g
                 pp = func(r, p)
 
                 if p in ("map_unit", "geologic_unit"):
-                    setattr(r, p, pp.value_str if pp else '')
+                    setattr(r, p, pp.value_str if pp else "")
                 else:
                     if pp:
                         v, e = pp.value, pp.error
@@ -151,8 +150,8 @@ async def root(name: str = None, properties: str = None, db: Session = Depends(g
                     setattr(r, p, v)
                     if p in ("age", "kca"):
                         setattr(r, f"{p}_error", e)
-                        if p == 'age':
-                            setattr(r, 'age_units', pp.units)
+                        if p == "age":
+                            setattr(r, "age_units", pp.units)
                             # setattr(r, 'age_kind', pp.kind)
 
         model = Sample.with_fields(**field_definitions)
