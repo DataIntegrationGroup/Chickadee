@@ -20,7 +20,7 @@
             <pre>
                 <code id='foo'
                       class="language-json"
-                      hx-get=/api/v1/sample/detail/{{ slug }}
+                      hx-get=chickadee/api/v1/sample/detail/{{ slug }}
                       hx-trigger="load"
                       hx-on:htmx:after-request="$('#foo').html(js_beautify(event.target.innerHTML));
                       hljs.highlightAll();"
@@ -65,7 +65,7 @@
                 // {data: 'longitude'},
             ],
             ajax: {
-                url: '/api/v1/sample/detail/{{ slug }}',
+                url: 'chickadee/api/v1/sample/detail/{{ slug }}',
                 dataSrc: function(resp){
                     console.log(resp)
                     return resp.properties
