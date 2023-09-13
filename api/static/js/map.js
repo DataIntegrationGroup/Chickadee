@@ -86,7 +86,7 @@ function initMap(center, zoom, dataurl){
 
     map.on('click', 'samples', (e) => {
         const name = e.features[0].properties.name
-        window.open('sample/detail/' + name, '_blank')
+        window.open('labs/argon/chickadee/sample/detail/' + name, '_blank')
     });
 
     map.on('style.load',  (s) => {
