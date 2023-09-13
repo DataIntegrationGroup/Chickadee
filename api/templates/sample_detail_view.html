@@ -20,7 +20,7 @@
             <pre>
                 <code id='foo'
                       class="language-json"
-                      hx-get=chickadee/api/v1/sample/detail/{{ slug }}
+                      hx-get=../../api/v1/sample/detail/{{ slug }}
                       hx-trigger="load"
                       hx-on:htmx:after-request="$('#foo').html(js_beautify(event.target.innerHTML));
                       hljs.highlightAll();"
