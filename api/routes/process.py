@@ -110,7 +110,7 @@ get_analyses()
 
 
 @router.get("/source_match")
-async def match_to_source(
+def match_to_source(
     age: str = None, kca: str = None, db: Session = Depends(get_db)
 ):
     return source_matcher(age, kca)
