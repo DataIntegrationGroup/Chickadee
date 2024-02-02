@@ -16,12 +16,13 @@
 
     {% include "map_include.html" %}
     <script>
-        const tokenurl = 'chickadee/mapboxtoken'
+        const tokenurl = 'mapboxtoken'
+        // const tokenurl = 'chickadee/mapboxtoken'
         fetch(tokenurl)
             .then(response => response.json())
             .then(data => {
                 mapboxgl.accessToken = data.token;
-                initMap([-106.5, 34.5], 6, 'chickadee/api/v1/sample/geojson');
+                initMap([-106.5, 34.5], 6, 'api/v1/sample/geojson');
             });
 
     </script>
