@@ -102,11 +102,11 @@ def get_analyses(force=False):
 
         ans = q.all()
 
-    ANS = ans
+    # ANS = ans
     return ans
 
 
-get_analyses()
+# get_analyses()
 
 
 @router.get("/source_match")
@@ -115,6 +115,8 @@ def match_to_source(age: str = None, kca: str = None, db: Session = Depends(get_
 
 
 def source_matcher(age, kca):
+    # from database import SessionLocal
+    # with SessionLocal() as db:
     if age:
         if "," in age:
             age, age_error = [float(a) for a in age.split(",")]
