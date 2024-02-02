@@ -130,7 +130,7 @@ function initMap(center, zoom, dataurl){
             'maxzoom': 14
         });
         // add the DEM source as a terrain layer with exaggerated height
-        map.setTerrain({ 'source': 'mapbox-dem', 'exaggeration': 1.5 });
+        map.setTerrain({ 'source': 'mapbox-dem', 'exaggeration': 3 });
 
     });
 }
